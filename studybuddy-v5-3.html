@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBuddy – AI Homework Helper</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand:#3B82F6;--brand-dark:#1D4ED8;--brand-light:#EFF6FF;
+    --yellow:#FDE68A;--yellow-dark:#F59E0B;
+    --green:#D1FAE5;--green-dark:#059669;
+    --pink:#FCE7F3;--pink-dark:#DB2777;
+    --purple:#EDE9FE;--purple-dark:#7C3AED;
+    --orange:#FFEDD5;--orange-dark:#EA580C;
+    --teal:#CFFAFE;--teal-dark:#0891B2;
+    --red:#FEE2E2;--red-dark:#DC2626;
+    --indigo:#E0E7FF;--indigo-dark:#4338CA;
+    --lime:#ECFCCB;--lime-dark:#65A30D;
+    --bg:#F0F7FF;--text:#1E293B;--muted:#64748B;
+    --white:#fff;--shadow:0 4px 20px rgba(59,130,246,.1);--r:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* ── NAV ── */
+  nav{background:var(--white);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,.06);position:sticky;top:0;z-index:300;flex-wrap:wrap;gap:8px}
+  .logo{font-size:1.35rem;font-weight:900;color:var(--brand);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+  .school-tag{font-size:.72rem;font-weight:800;color:var(--muted);margin-left:3px}
+  nav ul{list-style:none;display:flex;gap:2px;flex-wrap:wrap}
+  nav ul li button{background:none;border:none;font-family:'Nunito',sans-serif;font-size:.83rem;font-weight:700;color:var(--muted);cursor:pointer;padding:6px 11px;border-radius:50px;transition:all .2s;white-space:nowrap}
+  nav ul li button:hover,nav ul li button.active{background:var(--brand-light);color:var(--brand)}
+  .nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .nav-sel{border:2px solid #E2E8F0;border-radius:50px;padding:4px 9px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:700;outline:none;cursor:pointer;background:white;transition:border-color .2s}
+  .nav-sel:focus{border-color:var(--brand)}
+  .lm-wrap{display:flex;align-items:center;gap:6px;font-size:.76rem;font-weight:800;color:var(--muted)}
+  .tog{width:36px;height:19px;background:#CBD5E1;border-radius:50px;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0}
+  .tog.on{background:var(--green-dark)}
+  .tog::after{content:'';width:15px;height:15px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .tog.on::after{left:19px}
+
+  /* ── PAGES ── */
+  .page{display:none;animation:fadeIn .3s ease}.page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+  .container{max-width:1100px;margin:0 auto;padding:32px 20px}
+
+  /* ── HERO ── */
+  .hero{text-align:center;padding:52px 20px 32px;background:linear-gradient(150deg,#EFF6FF 0%,#F0F7FF 55%,#FEF3C7 100%)}
+  .hero-badge{display:inline-block;background:var(--yellow);color:#92400E;font-size:.72rem;font-weight:800;padding:4px 13px;border-radius:50px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase}
+  .hero h1{font-family:'Fraunces',serif;font-size:clamp(1.8rem,5vw,3.2rem);font-weight:700;line-height:1.15;max-width:640px;margin:0 auto 14px}
+  .hero h1 em{font-style:italic;color:var(--brand)}
+  .hero p{color:var(--muted);font-size:1rem;max-width:480px;margin:0 auto 26px;line-height:1.7}
+  .btn-primary{background:var(--brand);color:white;border:none;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;padding:12px 26px;border-radius:50px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(59,130,246,.3)}
+  .btn-primary:hover{background:var(--brand-dark);transform:translateY(-2px)}
+
+  /* subject chips */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:28px}
+  .chip{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:50px;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .chip:hover{transform:translateY(-2px)}
+  .c-math{background:var(--purple);color:var(--purple-dark)}
+  .c-grammar{background:var(--pink);color:var(--pink-dark)}
+  .c-science{background:var(--green);color:var(--green-dark)}
+  .c-history{background:var(--orange);color:var(--orange-dark)}
+  .c-code{background:var(--teal);color:var(--teal-dark)}
+  .c-eng{background:var(--lime);color:var(--lime-dark)}
+  .c-lang{background:var(--indigo);color:var(--indigo-dark)}
+
+  /* ── CARDS ── */
+  .card{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+  .card-title{font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:700px){.grid2{grid-template-columns:1fr}}
+
+  /* subject selector */
+  .subj-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+  .sb{padding:4px 10px;border-radius:50px;border:2px solid #E2E8F0;font-family:'Nunito',sans-serif;font-size:.76rem;font-weight:700;cursor:pointer;background:white;transition:all .2s;white-space:nowrap}
+  .sb:hover,.sb.sel{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+
+  /* coding sub-selector */
+  .code-sub{display:none;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .code-sub.show{display:flex}
+  .csb{padding:3px 9px;border-radius:50px;border:2px solid var(--teal-dark);font-family:'Nunito',sans-serif;font-size:.73rem;font-weight:700;cursor:pointer;background:var(--teal);color:var(--teal-dark);transition:all .2s}
+  .csb:hover,.csb.sel{background:var(--teal-dark);color:white}
+
+  /* engineering sub-selector */
+  .eng-sub{display:none;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .eng-sub.show{display:flex}
+  .esb{padding:3px 9px;border-radius:50px;border:2px solid var(--lime-dark);font-family:'Nunito',sans-serif;font-size:.73rem;font-weight:700;cursor:pointer;background:var(--lime);color:var(--lime-dark);transition:all .2s}
+  .esb:hover,.esb.sel{background:var(--lime-dark);color:white}
+
+  textarea{width:100%;min-height:120px;border:2px solid #E2E8F0;border-radius:13px;padding:11px;font-family:'Nunito',sans-serif;font-size:.9rem;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+  textarea:focus{border-color:var(--brand)}
+  .solve-btn{width:100%;margin-top:10px;background:var(--brand);color:white;border:none;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;padding:12px;border-radius:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+  .solve-btn:hover{background:var(--brand-dark)}
+  .solve-btn:disabled{background:#94A3B8;cursor:not-allowed}
+
+  /* answer */
+  .ans-area{display:none}.ans-area.show{display:block}
+  .step-card{background:var(--brand-light);border-radius:12px;padding:13px 15px;margin-bottom:8px;border-left:4px solid var(--brand);animation:slideIn .3s ease both}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:translateX(0)}}
+  .step-num{font-size:.67rem;font-weight:900;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  .step-text{font-size:.89rem;line-height:1.65;font-weight:600}
+
+  /* code block styling */
+  .code-block{background:#1E293B;border-radius:11px;padding:13px 15px;margin:8px 0;font-family:monospace;font-size:.84rem;line-height:1.6;color:#E2E8F0;overflow-x:auto;white-space:pre-wrap}
+  .code-block .kw{color:#93C5FD}
+  .code-block .str{color:#86EFAC}
+  .code-block .cm{color:#6B7280;font-style:italic}
+  .code-lang-tag{display:inline-block;background:var(--teal-dark);color:white;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:50px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+
+  .ans-final{background:linear-gradient(135deg,#D1FAE5,#A7F3D0);border-radius:12px;padding:13px 15px;border-left:4px solid var(--green-dark);margin-top:5px;animation:slideIn .3s ease both}
+  .ans-label{font-size:.67rem;font-weight:900;color:var(--green-dark);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  .ans-value{font-size:.98rem;font-weight:800}
+
+  .loading{display:flex;align-items:center;gap:7px;color:var(--muted);font-weight:700;padding:20px 0}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);animation:bounce 1.2s infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+  .err-box{background:var(--red);border:2px solid #FECACA;border-radius:12px;padding:12px;color:var(--red-dark);font-weight:700;font-size:.86rem}
+
+  /* attempt box */
+  .attempt-box{background:var(--yellow);border-radius:13px;padding:16px;margin-bottom:13px;border:2px solid var(--yellow-dark)}
+  .attempt-box h3{font-size:.94rem;font-weight:900;color:#78350F;margin-bottom:5px}
+  .attempt-box p{font-size:.84rem;color:#92400E;margin-bottom:10px;line-height:1.6;font-weight:600}
+  .attempt-inp{width:100%;border:2px solid #FCD34D;border-radius:10px;padding:9px;font-family:'Nunito',sans-serif;font-size:.88rem;background:white;outline:none;margin-bottom:9px}
+  .attempt-inp:focus{border-color:var(--yellow-dark)}
+  .attempt-sub{background:#F59E0B;color:white;border:none;font-family:'Nunito',sans-serif;font-size:.86rem;font-weight:800;padding:8px 18px;border-radius:50px;cursor:pointer}
+  .attempt-skip{background:none;border:none;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;color:#92400E;cursor:pointer;margin-left:9px;text-decoration:underline}
+
+  /* ans locked */
+  .ans-locked{background:#F8FAFC;border:2px dashed #CBD5E1;border-radius:12px;padding:14px;text-align:center;color:var(--muted);font-weight:700;font-size:.88rem;margin-top:5px}
+  .unlock-btn{margin-top:9px;background:var(--brand);color:white;border:none;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;padding:7px 16px;border-radius:50px;cursor:pointer}
+
+  /* action btns */
+  .act-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+  .act-btn{padding:7px 14px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-size:.81rem;font-weight:800;cursor:pointer;transition:all .2s}
+  .act-btn:hover{transform:translateY(-1px)}
+  .act-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .ab-yellow{background:var(--yellow);color:#92400E}
+  .ab-purple{background:var(--purple);color:var(--purple-dark)}
+
+  /* vid links */
+  .vid-links{margin-top:12px;padding:12px;background:#F8FAFC;border-radius:12px;border:2px dashed #CBD5E1}
+  .vlt{font-size:.7rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+  .vl{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #F1F5F9;text-decoration:none;color:var(--text);font-size:.85rem;transition:color .2s}
+  .vl:last-child{border-bottom:none}
+  .vl:hover{color:var(--brand)}
+  .vi{width:28px;height:28px;background:var(--red-dark);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:.82rem;flex-shrink:0}
+  .vt{font-weight:800;display:block;font-size:.85rem}
+  .vm{font-size:.72rem;color:var(--muted);font-weight:600}
+
+  /* quiz */
+  .quiz-wrap{margin-top:11px;display:none}.quiz-wrap.show{display:block}
+  .quiz-card{background:var(--white);border-radius:var(--r);padding:18px;border:2px solid var(--purple)}
+  .quiz-meta{font-size:.7rem;font-weight:900;color:var(--purple-dark);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .quiz-q{font-size:.92rem;font-weight:700;margin-bottom:10px;line-height:1.5}
+  .quiz-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .qopt{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:10px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;text-align:left;transition:all .2s}
+  .qopt:hover{border-color:var(--brand);background:var(--brand-light)}
+  .qopt.correct{border-color:var(--green-dark);background:var(--green);color:var(--green-dark)}
+  .qopt.wrong{border-color:var(--red-dark);background:var(--red);color:var(--red-dark)}
+  .qfb{font-size:.86rem;font-weight:700;padding:8px 12px;border-radius:10px;margin-bottom:8px;display:none}
+  .qfb.show{display:block}
+  .qfb.correct{background:var(--green);color:var(--green-dark)}
+  .qfb.wrong{background:var(--red);color:var(--red-dark)}
+  .nxt-btn{background:var(--purple);color:var(--purple-dark);border:none;font-family:'Nunito',sans-serif;font-size:.81rem;font-weight:800;padding:7px 15px;border-radius:50px;cursor:pointer;display:none}
+  .nxt-btn.show{display:inline-block}
+
+  /* ── PROGRESS ── */
+  .skill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}
+  .sk-card{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+  .sk-icon{font-size:1.5rem;margin-bottom:6px}
+  .sk-name{font-weight:800;font-size:.86rem;margin-bottom:8px}
+  .pb{background:#E2E8F0;border-radius:50px;height:7px;overflow:hidden;margin-bottom:4px}
+  .pf{height:100%;border-radius:50px;transition:width 1.2s ease}
+  .sk-pct{font-size:.73rem;font-weight:700;color:var(--muted)}
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:700px){.plan-grid{grid-template-columns:1fr}}
+  .plan-card{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+  .pw{font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+  .plan-card h3{font-size:.92rem;font-weight:800;margin-bottom:8px}
+  .pt-list{list-style:none}
+  .pt-list li{display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:.83rem;color:var(--muted);font-weight:600;border-bottom:1px solid #F1F5F9}
+  .pt-list li:last-child{border-bottom:none}
+  .tchk{width:15px;height:15px;border-radius:50%;border:2px solid #CBD5E1;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.6rem}
+  .tchk.done{background:var(--green-dark);border-color:var(--green-dark);color:white}
+  .ai-box{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-top:24px}
+  .ai-txt{font-size:.9rem;line-height:1.8;white-space:pre-wrap;font-weight:600}
+
+  /* print */
+  .rpt-btn{background:var(--green-dark);color:white;border:none;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;padding:9px 18px;border-radius:50px;cursor:pointer;transition:all .2s}
+  .rpt-btn:hover{background:#047857}
+  @media print{nav,.rpt-btn,.act-btns,.solve-btn,.sb,#page-home,#page-helper,#page-videos,#page-dashboard,#page-teacher,#page-school{display:none!important}#page-progress{display:block!important}body{background:white}.print-hdr{display:block!important}}
+  .print-hdr{display:none;text-align:center;padding:16px 0 12px;border-bottom:2px solid #E2E8F0;margin-bottom:16px}
+
+  /* ── VIDEOS ── */
+  .vid-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .fb{padding:5px 13px;border-radius:50px;border:2px solid #E2E8F0;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;background:white;transition:all .2s}
+  .fb:hover,.fb.active{border-color:var(--brand);background:var(--brand-light);color:var(--brand)}
+  .vid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:14px}
+  .vc{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s;cursor:pointer;text-decoration:none;color:var(--text);display:block}
+  .vc:hover{transform:translateY(-4px)}
+  .vthumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:2.3rem;position:relative}
+  .play{position:absolute;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.88rem;box-shadow:0 2px 8px rgba(0,0,0,.1);padding-left:2px}
+  .vi2{padding:11px}
+  .vs{font-size:.64rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+  .vtt{font-size:.87rem;font-weight:800;margin-bottom:3px;line-height:1.3}
+  .vch{font-size:.73rem;color:var(--muted);font-weight:600}
+
+  /* ── DASHBOARD ── */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:11px;margin-bottom:20px}
+  .stat-card{background:var(--white);border-radius:var(--r);padding:15px;box-shadow:var(--shadow);text-align:center}
+  .stat-n{font-size:1.7rem;font-weight:900;margin-bottom:2px}
+  .stat-l{font-size:.69rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .rec-list{list-style:none}
+  .rec-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9}
+  .rec-item:last-child{border-bottom:none}
+  .rec-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+  .rec-inf{flex:1}
+  .rec-ttl{font-weight:800;font-size:.87rem}
+  .rec-sub{font-size:.72rem;color:var(--muted);font-weight:600}
+
+  /* ── TEACHER ── */
+  .teacher-gate{background:var(--white);border-radius:var(--r);padding:28px;box-shadow:var(--shadow);max-width:400px;margin:50px auto;text-align:center}
+  .teacher-gate h2{font-family:'Fraunces',serif;font-size:1.5rem;margin-bottom:7px}
+  .teacher-gate p{color:var(--muted);margin-bottom:18px;font-size:.9rem;line-height:1.6;font-weight:600}
+  .pin-inp{width:100%;border:2px solid #E2E8F0;border-radius:13px;padding:11px;font-family:'Nunito',sans-serif;font-size:1.2rem;text-align:center;letter-spacing:.3em;outline:none;margin-bottom:10px;font-weight:800}
+  .pin-inp:focus{border-color:var(--brand)}
+  .pin-hint{font-size:.76rem;color:var(--muted);font-weight:600}
+  .t-sec{display:none}.t-sec.show{display:block}
+  .t-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:11px;margin-bottom:20px}
+  .t-stat{background:var(--white);border-radius:var(--r);padding:15px;box-shadow:var(--shadow);text-align:center}
+  .t-sn{font-size:1.7rem;font-weight:900;margin-bottom:2px}
+  .t-sl{font-size:.69rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .t-tbl{width:100%;border-collapse:collapse;font-size:.85rem}
+  .t-tbl th{text-align:left;padding:9px 11px;background:#F8FAFC;font-size:.7rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #E2E8F0}
+  .t-tbl td{padding:9px 11px;border-bottom:1px solid #F1F5F9;font-weight:600;vertical-align:top}
+  .t-tbl tr:last-child td{border-bottom:none}
+  .stag{display:inline-block;padding:2px 8px;border-radius:50px;font-size:.7rem;font-weight:800}
+
+  /* ── SCHOOL SETUP ── */
+  .custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+  @media(max-width:600px){.custom-grid{grid-template-columns:1fr}}
+  .fl{font-size:.76rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .fi{width:100%;border:2px solid #E2E8F0;border-radius:10px;padding:8px 11px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;outline:none;transition:border-color .2s}
+  .fi:focus{border-color:var(--brand)}
+  .color-row{display:flex;gap:9px;align-items:center;margin-top:4px}
+  .cswatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0}
+  .cswatch.active{border-color:var(--text);transform:scale(1.15)}
+  .apply-btn{background:var(--brand);color:white;border:none;font-family:'Nunito',sans-serif;font-size:.86rem;font-weight:800;padding:9px 20px;border-radius:50px;cursor:pointer;margin-top:12px;transition:all .2s}
+  .apply-btn:hover{background:var(--brand-dark)}
+  .prev-bar{border-radius:11px;padding:11px 16px;margin-top:12px;display:flex;align-items:center;gap:9px;font-weight:800;font-size:.9rem}
+
+  /* ── SECTION HEAD ── */
+  .sh{margin-bottom:18px}
+  .sh h2{font-family:'Fraunces',serif;font-size:1.65rem;margin-bottom:3px}
+  .sh p{color:var(--muted);font-size:.9rem}
+  .fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:14px}
+
+  /* toast */
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--text);color:white;padding:10px 18px;border-radius:50px;font-size:.84rem;font-weight:800;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  /* RTL support */
+  [dir="rtl"] .step-card,[dir="rtl"] .ans-final{border-left:none;border-right:4px solid var(--brand)}
+  [dir="rtl"] .ans-final{border-right-color:var(--green-dark)}
+</style>
+</head>
+<body>
+
+<nav id="main-nav">
+  <div class="logo" onclick="showPage('home',document.querySelectorAll('nav button')[0])">
+    📚 <span id="logo-txt">StudyBuddy</span><span class="school-tag" id="school-tag"></span>
+  </div>
+  <ul>
+    <li><button class="active" onclick="showPage('home',this)" data-i18n="nav_home">Home</button></li>
+    <li><button onclick="showPage('helper',this)" data-i18n="nav_helper">Homework Helper</button></li>
+    <li><button onclick="showPage('progress',this)" data-i18n="nav_progress">My Progress</button></li>
+    <li><button onclick="showPage('videos',this)" data-i18n="nav_videos">Videos</button></li>
+    <li><button onclick="showPage('dashboard',this)" data-i18n="nav_dashboard">Dashboard</button></li>
+    <li><button onclick="showPage('teacher',this)">👩‍🏫 <span data-i18n="nav_teacher">Teacher</span></button></li>
+    <li><button onclick="showPage('school',this)">🏫 <span data-i18n="nav_school">School Setup</span></button></li>
+  </ul>
+  <div class="nav-right">
+    <!-- Language picker -->
+    <select class="nav-sel" id="lang-sel" onchange="changeLang()">
+      <option value="en">🇺🇸 English</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="zh">🇨🇳 中文</option>
+      <option value="ar">🇸🇦 العربية</option>
+      <option value="pt">🇧🇷 Português</option>
+    </select>
+    <select class="nav-sel" id="grade-sel" onchange="saveGrade()">
+      <option value="elementary" data-i18n="grade_elem">Elementary (K–5)</option>
+      <option value="middle" selected data-i18n="grade_mid">Middle School (6–8)</option>
+      <option value="high" data-i18n="grade_high">High School (9–12)</option>
+      <option value="college" data-i18n="grade_col">College</option>
+    </select>
+    <div class="lm-wrap">
+      <span data-i18n="lm_label">🧠 Learning Mode</span>
+      <div class="tog" id="lm-tog" onclick="toggleLM()"></div>
+    </div>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ HOME ══ -->
+<div id="page-home" class="page active">
+
+  <!-- ══ HERO ══ -->
+  <div style="background:linear-gradient(135deg,#1E3A5F 0%,#2563EB 50%,#7C3AED 100%);padding:64px 24px 48px;text-align:center;position:relative;overflow:hidden">
+    <!-- Decorative circles -->
+    <div style="position:absolute;top:-60px;left:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
+    <div style="position:absolute;bottom:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+    <div style="position:absolute;top:20px;right:10%;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.04)"></div>
+
+    <div style="position:relative;z-index:1">
+      <div style="display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);color:white;font-size:.72rem;font-weight:800;padding:5px 16px;border-radius:50px;margin-bottom:20px;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.2)" data-i18n="hero_badge">✨ District-Approved AI Tutor</div>
+
+      <h1 style="font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:700;color:white;line-height:1.15;max-width:680px;margin:0 auto 18px" data-i18n="hero_title">Get <em style="font-style:italic;color:#93C5FD">unstuck</em> on homework — <em style="font-style:italic;color:#C4B5FD">and actually learn</em></h1>
+
+      <p style="color:rgba(255,255,255,.8);font-size:1rem;max-width:500px;margin:0 auto 30px;line-height:1.75;font-weight:600" data-i18n="hero_sub">Step-by-step AI explanations in 6 languages, covering Math, Science, Coding, Engineering, and more.</p>
+
+      <button onclick="showPage('helper',document.querySelectorAll('nav button')[1])" style="background:white;color:#2563EB;border:none;border-radius:50px;padding:14px 36px;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2);transition:transform .2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''" data-i18n="hero_btn">Try it now →</button>
+
+      <!-- Subject chips -->
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:28px">
+        <div onclick="goHelper('Math')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">➕ <span data-i18n="subj_math">Math</span></div>
+        <div onclick="goHelper('Grammar')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">✏️ <span data-i18n="subj_grammar">Grammar</span></div>
+        <div onclick="goHelper('Science')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">🔬 <span data-i18n="subj_science">Science</span></div>
+        <div onclick="goHelper('History')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">🌍 <span data-i18n="subj_history">History</span></div>
+        <div onclick="goHelper('Coding')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">💻 <span data-i18n="subj_code">Coding</span></div>
+        <div onclick="goHelper('Engineering')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">⚙️ <span data-i18n="subj_eng">Engineering</span></div>
+        <div onclick="goHelper('Language Learning')" style="background:rgba(255,255,255,.15);color:white;padding:6px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,.25);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">🗣️ <span data-i18n="subj_lang">Languages</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STATS BAR ══ -->
+  <div style="background:white;padding:20px 24px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+    <div style="text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:#2563EB">7</div>
+      <div style="font-size:.75rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em">Subjects</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:#7C3AED">6</div>
+      <div style="font-size:.75rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em">Languages</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:#059669">K–12</div>
+      <div style="font-size:.75rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em">Grade Levels</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:#EA580C">100%</div>
+      <div style="font-size:.75rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em">Step-by-Step</div>
+    </div>
+  </div>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <div style="padding:48px 24px;background:#F8FAFF;text-align:center">
+    <div style="font-size:.75rem;font-weight:900;color:#2563EB;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">How It Works</div>
+    <h2 style="font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2rem);font-weight:700;color:#1E293B;margin-bottom:36px">From confused to confident in 3 steps</h2>
+    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;max-width:800px;margin:0 auto">
+      <div style="background:white;border-radius:20px;padding:28px 22px;flex:1;min-width:200px;max-width:230px;box-shadow:0 4px 20px rgba(37,99,235,.08);text-align:center">
+        <div style="width:52px;height:52px;background:#EFF6FF;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 14px">✏️</div>
+        <div style="font-size:.65rem;font-weight:900;color:#2563EB;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Step 1</div>
+        <div style="font-weight:800;font-size:.95rem;color:#1E293B;margin-bottom:6px">Type your question</div>
+        <div style="color:#94A3B8;font-size:.82rem;font-weight:600;line-height:1.6">Any subject, any language, any grade level</div>
+      </div>
+      <div style="background:white;border-radius:20px;padding:28px 22px;flex:1;min-width:200px;max-width:230px;box-shadow:0 4px 20px rgba(124,58,237,.08);text-align:center">
+        <div style="width:52px;height:52px;background:#EDE9FE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 14px">🧠</div>
+        <div style="font-size:.65rem;font-weight:900;color:#7C3AED;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Step 2</div>
+        <div style="font-weight:800;font-size:.95rem;color:#1E293B;margin-bottom:6px">AI explains it</div>
+        <div style="color:#94A3B8;font-size:.82rem;font-weight:600;line-height:1.6">Step-by-step, tailored to your level</div>
+      </div>
+      <div style="background:white;border-radius:20px;padding:28px 22px;flex:1;min-width:200px;max-width:230px;box-shadow:0 4px 20px rgba(5,150,105,.08);text-align:center">
+        <div style="width:52px;height:52px;background:#D1FAE5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 14px">🎯</div>
+        <div style="font-size:.65rem;font-weight:900;color:#059669;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Step 3</div>
+        <div style="font-weight:800;font-size:.95rem;color:#1E293B;margin-bottom:6px">Quiz yourself</div>
+        <div style="color:#94A3B8;font-size:.82rem;font-weight:600;line-height:1.6">Prove you understood it with a quick quiz</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FEATURES ══ -->
+  <div class="container" style="padding-top:40px;padding-bottom:48px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-size:.75rem;font-weight:900;color:#2563EB;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Features</div>
+      <h2 style="font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2rem);font-weight:700;color:#1E293B">Everything a student needs</h2>
+    </div>
+    <div class="fg">
+      <div class="card" style="border-top:3px solid #2563EB"><div class="card-title">🧠 <span data-i18n="feat1_t">AI Explanations</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat1_d">Step-by-step answers tailored to your grade level, in your language.</p></div>
+      <div class="card" style="border-top:3px solid #0891B2"><div class="card-title">💻 <span data-i18n="feat2_t">Coding Help</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat2_d">Python, JavaScript, HTML/CSS, Java, and Scratch — with real code examples.</p></div>
+      <div class="card" style="border-top:3px solid #65A30D"><div class="card-title">⚙️ <span data-i18n="feat3_t">Engineering</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat3_d">Civil, Mechanical, Electrical, Computer, and Basic Engineering explained clearly.</p></div>
+      <div class="card" style="border-top:3px solid #7C3AED"><div class="card-title">🌐 <span data-i18n="feat4_t">6 Languages</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat4_d">Full UI + AI answers in English, Spanish, French, Chinese, Arabic, and Portuguese.</p></div>
+      <div class="card" style="border-top:3px solid #EA580C"><div class="card-title">🔒 <span data-i18n="feat5_t">Learning Mode</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat5_d">Students must attempt the problem first. Teachers control the answer settings.</p></div>
+      <div class="card" style="border-top:3px solid #DB2777"><div class="card-title">📄 <span data-i18n="feat6_t">Progress Reports</span></div><p style="color:var(--muted);line-height:1.7;font-weight:600" data-i18n="feat6_d">Printable reports for teachers, plus a full parent/teacher dashboard.</p></div>
+    </div>
+  </div>
+
+  <!-- ══ CTA BANNER ══ -->
+  <div style="background:linear-gradient(135deg,#2563EB,#7C3AED);padding:48px 24px;text-align:center">
+    <h2 style="font-family:'Fraunces',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:white;margin-bottom:12px">Ready to get unstuck?</h2>
+    <p style="color:rgba(255,255,255,.8);font-weight:600;margin-bottom:24px;font-size:.95rem">Ask your first question — it's completely free.</p>
+    <button onclick="showPage('helper',document.querySelectorAll('nav button')[1])" style="background:white;color:#2563EB;border:none;border-radius:50px;padding:14px 36px;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.2)">Start learning now →</button>
+  </div>
+
+</div>
+
+<!-- ══ HOMEWORK HELPER ══ -->
+<div id="page-helper" class="page">
+  <div class="container">
+    <div class="sh">
+      <h2 data-i18n="helper_title">Homework Helper</h2>
+      <p data-i18n="helper_sub">Ask any question — explained step by step in your language and grade level.</p>
+    </div>
+
+    <div id="lm-banner" style="display:none;background:var(--yellow);border-radius:13px;padding:11px 16px;margin-bottom:14px;align-items:center;gap:9px;font-weight:800;color:#78350F;font-size:.86rem">
+      🔒 <span data-i18n="lm_banner">Learning Mode is ON — attempt the problem before seeing the explanation.</span>
+    </div>
+
+    <div class="grid2">
+      <!-- Input -->
+      <div class="card">
+        <div class="card-title">✏️ <span data-i18n="your_question">Your Question</span></div>
+        <!-- Main subject row -->
+        <div class="subj-row" id="subj-row">
+          <button class="sb sel" onclick="selSubj('Math',this)">➕ <span data-i18n="subj_math">Math</span></button>
+          <button class="sb" onclick="selSubj('Grammar',this)">✏️ <span data-i18n="subj_grammar">Grammar</span></button>
+          <button class="sb" onclick="selSubj('Science',this)">🔬 <span data-i18n="subj_science">Science</span></button>
+          <button class="sb" onclick="selSubj('History',this)">🌍 <span data-i18n="subj_history">History</span></button>
+          <button class="sb" onclick="selSubj('Coding',this)">💻 <span data-i18n="subj_code">Coding</span></button>
+          <button class="sb" onclick="selSubj('Engineering',this)">⚙️ <span data-i18n="subj_eng">Engineering</span></button>
+          <button class="sb" onclick="selSubj('Language Learning',this)">🗣️ <span data-i18n="subj_lang">Languages</span></button>
+        </div>
+        <!-- Coding sub-topics -->
+        <div class="code-sub" id="code-sub">
+          <button class="csb sel" onclick="selCodeLang('Python',this)">🐍 Python</button>
+          <button class="csb" onclick="selCodeLang('JavaScript',this)">⚡ JavaScript</button>
+          <button class="csb" onclick="selCodeLang('HTML & CSS',this)">🌐 HTML/CSS</button>
+          <button class="csb" onclick="selCodeLang('Java',this)">☕ Java</button>
+          <button class="csb" onclick="selCodeLang('Scratch',this)">🐱 Scratch</button>
+        </div>
+        <!-- Engineering sub-topics -->
+        <div class="eng-sub" id="eng-sub">
+          <button class="esb sel" onclick="selEngField('Basic Engineering',this)">🔧 Basic</button>
+          <button class="esb" onclick="selEngField('Civil Engineering',this)">🏗️ Civil</button>
+          <button class="esb" onclick="selEngField('Mechanical Engineering',this)">⚙️ Mechanical</button>
+          <button class="esb" onclick="selEngField('Electrical Engineering',this)">⚡ Electrical</button>
+          <button class="esb" onclick="selEngField('Computer Engineering',this)">🖥️ Computer</button>
+        </div>
+        <textarea id="q-inp" placeholder="Type your question here..."></textarea>
+        <button class="solve-btn" id="solve-btn" onclick="solveQ()">🚀 <span data-i18n="explain_btn">Explain it to me</span></button>
+      </div>
+
+      <!-- Output -->
+      <div class="card" style="overflow-y:auto;max-height:660px">
+        <div class="card-title">💡 <span data-i18n="explanation">Step-by-Step Explanation</span></div>
+        <div id="empty-st" style="text-align:center;padding:34px 0;color:var(--muted)">
+          <div style="font-size:2.5rem;margin-bottom:7px">🤔</div>
+          <p style="font-weight:700" data-i18n="empty_msg">Enter your question and I'll walk you through it!</p>
+        </div>
+        <div id="load-st" style="display:none"><div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span data-i18n="thinking">Thinking...</span></div></div>
+        <div id="err-st" style="display:none"><div class="err-box" id="err-msg"></div></div>
+        <div id="attempt-wrap" style="display:none">
+          <div class="attempt-box">
+            <h3 data-i18n="attempt_title">🔒 Try it yourself first!</h3>
+            <p data-i18n="attempt_desc">Before I explain, give it a shot. What do you think the answer might be?</p>
+            <input class="attempt-inp" id="attempt-inp" />
+            <button class="attempt-sub" onclick="submitAttempt()" data-i18n="attempt_submit">Submit my attempt →</button>
+            <button class="attempt-skip" onclick="skipAttempt()" data-i18n="attempt_skip">I don't know, show me</button>
+          </div>
+        </div>
+        <div class="ans-area" id="ans-area">
+          <div id="ans-content"></div>
+          <div id="ans-locked" class="ans-locked" style="display:none">
+            🔒 <span data-i18n="ans_locked">Answer hidden — take the quiz to reveal it.</span>
+            <br><button class="unlock-btn" onclick="unlockAns()" data-i18n="unlock">Unlock Answer</button>
+          </div>
+          <div id="vid-wrap" style="display:none">
+            <div class="vid-links">
+              <div class="vlt" data-i18n="vid_title">🎥 Related Videos on YouTube</div>
+              <div id="vid-list"></div>
+            </div>
+          </div>
+          <div class="act-btns">
+            <button class="act-btn ab-yellow" onclick="rephrase()" data-i18n="rephrase_btn">🔁 Explain differently</button>
+            <button class="act-btn ab-purple" onclick="startQuiz()" data-i18n="quiz_btn">🧪 Quiz me</button>
+          </div>
+          <div class="quiz-wrap" id="quiz-wrap">
+            <div class="quiz-card">
+              <div class="quiz-meta">🧪 <span data-i18n="quick_quiz">Quick Quiz</span></div>
+              <div id="qload" class="loading" style="display:none"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span data-i18n="making_quiz">Making quiz...</span></div>
+              <div id="qbody"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Examples by subject -->
+    <div class="card">
+      <div class="card-title">💬 <span data-i18n="examples">Try an Example</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="example-btns">
+        <button class="sb" onclick="tryEx('Find the average of: 11, 12, 11, 12 inches','Math','')">📐 Average of lengths</button>
+        <button class="sb" onclick="tryEx('Solve for x: 3x + 7 = 22','Math','')">➕ 3x + 7 = 22</button>
+        <button class="sb" onclick="tryEx('What caused World War I?','History','')">🌍 WWI Causes</button>
+        <button class="sb" onclick="tryEx('How does photosynthesis work?','Science','')">🔬 Photosynthesis</button>
+        <button class="sb" onclick="tryEx('Write a Python function to find the largest number in a list','Coding','Python')">🐍 Python function</button>
+        <button class="sb" onclick="tryEx('How do I center a div in CSS?','Coding','HTML & CSS')">🌐 Center a div</button>
+        <button class="sb" onclick="tryEx('What is Ohm\\'s Law and how do I use it?','Engineering','Electrical Engineering')">⚡ Ohm\'s Law</button>
+        <button class="sb" onclick="tryEx('What are the main types of bridges and how do they work?','Engineering','Civil Engineering')">🏗️ Bridge types</button>
+        <button class="sb" onclick="tryEx('How do I say &quot;Where is the library?&quot; in Spanish and use it in a sentence?','Language Learning','')">🗣️ Spanish phrase</button>
+        <button class="sb" onclick="tryEx('Explain Newton\\'s laws of motion','Engineering','Basic Engineering')">🔧 Newton\'s Laws</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESS ══ -->
+<div id="page-progress" class="page">
+  <div class="container">
+    <div class="print-hdr"><h1 id="print-title">📚 StudyBuddy Progress Report</h1><p id="print-date"></p></div>
+    <div class="sh" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div><h2 data-i18n="skills_title">Your Skill Levels</h2><p data-i18n="skills_sub">Based on your recent questions and quiz scores.</p></div>
+      <button class="rpt-btn" onclick="window.print()">🖨️ <span data-i18n="print_report">Print Progress Report</span></button>
+    </div>
+    <div class="skill-grid" id="skill-grid"></div>
+    <div style="margin-top:28px">
+      <div class="sh"><h2 data-i18n="plan_title">Your Improvement Plan</h2><p data-i18n="plan_sub">Check tasks off as you complete them — saved automatically.</p></div>
+      <div class="plan-grid" id="plan-grid"></div>
+    </div>
+    <div class="ai-box" id="ai-box" style="display:none">
+      <div class="card-title">🤖 <span data-i18n="ai_analysis">AI Analysis</span></div>
+      <div class="loading" id="ai-load"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="ai-txt" id="ai-txt" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIDEOS ══ -->
+<div id="page-videos" class="page">
+  <div class="container">
+    <div class="sh"><h2 data-i18n="videos_title">Video Lessons</h2><p data-i18n="videos_sub">Curated YouTube videos for every subject. Click any to watch.</p></div>
+    <div class="vid-filter" id="vid-filter">
+      <button class="fb active" onclick="filterVids('All',this)" data-i18n="all">All</button>
+      <button class="fb" onclick="filterVids('Math',this)">➕ Math</button>
+      <button class="fb" onclick="filterVids('Grammar',this)">✏️ Grammar</button>
+      <button class="fb" onclick="filterVids('Science',this)">🔬 Science</button>
+      <button class="fb" onclick="filterVids('History',this)">🌍 History</button>
+      <button class="fb" onclick="filterVids('Coding',this)">💻 Coding</button>
+      <button class="fb" onclick="filterVids('Engineering',this)">⚙️ Engineering</button>
+      <button class="fb" onclick="filterVids('Language Learning',this)">🗣️ Languages</button>
+    </div>
+    <div class="vid-grid" id="vid-grid"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="page-dashboard" class="page">
+  <div class="container">
+    <div style="margin-bottom:20px"><h2 style="font-family:'Fraunces',serif;font-size:1.8rem;margin-bottom:3px" data-i18n="dash_title">Your Dashboard 👋</h2><p style="color:var(--muted)" data-i18n="dash_sub">A snapshot of your learning this session.</p></div>
+    <div class="stats-row" id="stats-row"></div>
+    <div class="card"><div class="card-title">🕐 <span data-i18n="recent">Recent Questions</span></div><ul class="rec-list" id="rec-list"></ul></div>
+  </div>
+</div>
+
+<!-- ══ TEACHER ══ -->
+<div id="page-teacher" class="page">
+  <div class="container">
+    <div class="sh"><h2>👩‍🏫 <span data-i18n="teacher_title">Teacher & Parent Dashboard</span></h2><p data-i18n="teacher_sub">Monitor student activity and control learning settings.</p></div>
+    <div id="teacher-gate">
+      <div class="teacher-gate">
+        <div style="font-size:2.2rem;margin-bottom:9px">🔐</div>
+        <h2 data-i18n="pin_title">Enter Teacher PIN</h2>
+        <p data-i18n="pin_desc">This area is for teachers and parents only.</p>
+        <input class="pin-inp" id="pin-inp" type="password" maxlength="4" placeholder="••••" oninput="checkPin()" />
+        <div class="pin-hint" data-i18n="pin_hint">Default PIN: 1234 (change in School Setup)</div>
+        <div id="pin-err" style="color:var(--red-dark);font-size:.82rem;font-weight:700;display:none" data-i18n="pin_wrong">❌ Wrong PIN. Try again.</div>
+      </div>
+    </div>
+    <div class="t-sec" id="t-content">
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title">⚙️ <span data-i18n="ans_settings">Answer Settings</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <button class="act-btn ab-yellow" onclick="setAnsMode('attempt')" id="mode-attempt" data-i18n="mode_attempt">🔒 Require attempt first</button>
+          <button class="act-btn ab-purple" onclick="setAnsMode('always')" id="mode-always" data-i18n="mode_always">✅ Always show answer</button>
+          <button class="act-btn" style="background:var(--red);color:var(--red-dark)" onclick="setAnsMode('hide')" id="mode-hide" data-i18n="mode_hide">🚫 Hide until quiz</button>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--muted)" id="mode-desc"></div>
+      </div>
+      <div class="t-stats" id="t-stats"></div>
+      <div class="card">
+        <div class="card-title" style="justify-content:space-between">
+          <span>📋 <span data-i18n="activity_log">Student Activity Log</span></span>
+          <button class="rpt-btn" style="font-size:.76rem;padding:6px 13px" onclick="window.print()">🖨️ Print</button>
+        </div>
+        <table class="t-tbl"><thead><tr><th>Time</th><th>Subject</th><th>Question</th><th>Quiz</th></tr></thead>
+        <tbody id="t-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCHOOL SETUP ══ -->
+<div id="page-school" class="page">
+  <div class="container">
+    <div class="sh"><h2>🏫 <span data-i18n="school_title">School Setup</span></h2><p data-i18n="school_sub">Customize StudyBuddy for your school.</p></div>
+    <!-- ── API KEY SETUP ── -->
+    <div class="card" style="margin-bottom:18px;border:2px solid var(--brand)">
+      <div class="card-title" style="font-size:.9rem">🔑 OpenRouter API Key — <span style="color:var(--green-dark)">Free, no credit card, works everywhere</span></div>
+      <p style="color:var(--muted);font-size:.85rem;line-height:1.7;font-weight:600;margin-bottom:12px">
+        StudyBuddy uses OpenRouter's free AI. You need a free API key to activate it.<br>
+        <strong style="color:var(--text)">It takes 2 minutes and costs nothing — works in every country.</strong>
+      </p>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-bottom:10px">
+        <div>
+          <div class="fl">Your Gemini API Key</div>
+          <input class="fi" id="openrouter-key-inp" type="password" placeholder="Paste your key here (sk-or-...)" />
+        </div>
+        <button class="apply-btn" style="margin-top:0;height:38px" onclick="saveOpenRouterKey()">Save Key</button>
+      </div>
+      <div id="key-status" style="display:none;padding:8px 12px;border-radius:9px;font-size:.82rem;font-weight:800;margin-bottom:10px"></div>
+      <div style="background:#EFF6FF;border-radius:10px;padding:12px 14px;font-size:.82rem;font-weight:700;color:var(--brand-dark);line-height:1.8">
+        📋 <strong>How to get your free key (2 min):</strong><br>
+        1. Go to <a href="https://openrouter.ai" target="_blank" style="color:var(--brand);font-weight:800">openrouter.ai</a> and click <strong>Sign In</strong><br>
+        2. Create a free account (use Google, GitHub, or email)<br>
+        3. Go to <a href="https://openrouter.ai/settings/keys" target="_blank" style="color:var(--brand);font-weight:800">openrouter.ai/settings/keys</a><br>
+        4. Click <strong>"Create Key"</strong> — copy it (starts with sk-or-v1-...)<br>
+        5. Paste it in the box above and click Save Key<br>
+        <span style="color:var(--green-dark)">✓ Free tier: 1,000 questions/day — works in every country!</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-title">🎨 <span data-i18n="branding">School Branding</span></div>
+      <div class="custom-grid">
+        <div><div class="fl" data-i18n="school_name_lbl">School Name</div><input class="fi" id="school-inp" placeholder="e.g. Lincoln Middle School" /></div>
+        <div><div class="fl" data-i18n="pin_change">Teacher PIN (4 digits)</div><input class="fi" id="pin-chg" type="password" placeholder="••••" maxlength="4" /></div>
+      </div>
+      <div style="margin-top:12px"><div class="fl" data-i18n="school_color">School Color</div>
+        <div class="color-row" id="color-row">
+          <div class="cswatch active" style="background:#3B82F6" data-c="#3B82F6" data-d="#1D4ED8" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#059669" data-c="#059669" data-d="#047857" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#7C3AED" data-c="#7C3AED" data-d="#6D28D9" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#DB2777" data-c="#DB2777" data-d="#BE185D" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#EA580C" data-c="#EA580C" data-d="#C2410C" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#0891B2" data-c="#0891B2" data-d="#0E7490" onclick="pickColor(this)"></div>
+          <div class="cswatch" style="background:#1E293B" data-c="#1E293B" data-d="#0F172A" onclick="pickColor(this)"></div>
+        </div>
+      </div>
+      <div class="prev-bar" id="prev-bar" style="background:#EFF6FF;color:#3B82F6">
+        📚 <span id="prev-txt">StudyBuddy · Your School</span>
+      </div>
+      <button class="apply-btn" onclick="applyBranding()" data-i18n="apply_branding">✅ Apply School Branding</button>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-title">🔢 Wolfram Alpha — Math Verification</div>
+      <p style="color:var(--muted);font-size:.86rem;line-height:1.7;font-weight:600;margin-bottom:12px">
+        Connect Wolfram Alpha to automatically verify math answers with a <strong style="color:var(--green-dark)">✓ Verified</strong> badge. Free — 2,000 checks/month.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end">
+        <div>
+          <div class="fl">Wolfram Alpha App ID</div>
+          <input class="fi" id="wolfram-key-inp" placeholder="Paste your App ID here..." />
+        </div>
+        <button class="apply-btn" style="margin-top:0;height:38px" onclick="saveWolframKey()">Save Key</button>
+      </div>
+      <div style="margin-top:10px;padding:10px 13px;background:#F0FDF4;border-radius:10px;font-size:.81rem;font-weight:700;color:var(--green-dark);line-height:1.7">
+        📋 How to get a free key:<br>
+        1. Go to <a href="https://developer.wolframalpha.com" target="_blank" style="color:var(--brand)">developer.wolframalpha.com</a><br>
+        2. Create a free account → click "Get an AppID"<br>
+        3. Paste the App ID above and click Save Key
+      </div>
+    </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <div style="background:#F0FDF4;border-radius:11px;padding:13px"><div style="font-weight:900;margin-bottom:4px;color:var(--green-dark)" data-i18n="reason1_t">✅ Teaches process, not just answers</div><div style="font-size:.84rem;color:var(--muted);font-weight:600;line-height:1.6" data-i18n="reason1_d">Every response shows HOW to solve. Students learn the method.</div></div>
+        <div style="background:#FFF7ED;border-radius:11px;padding:13px"><div style="font-weight:900;margin-bottom:4px;color:var(--orange-dark)" data-i18n="reason2_t">🔒 Learning Mode enforces effort</div><div style="font-size:.84rem;color:var(--muted);font-weight:600;line-height:1.6" data-i18n="reason2_d">Students must attempt problems themselves before receiving help.</div></div>
+        <div style="background:#EFF6FF;border-radius:11px;padding:13px"><div style="font-weight:900;margin-bottom:4px;color:var(--brand)" data-i18n="reason3_t">👁️ Full teacher visibility</div><div style="font-size:.84rem;color:var(--muted);font-weight:600;line-height:1.6" data-i18n="reason3_d">Teachers see every question with timestamps. Nothing hidden.</div></div>
+        <div style="background:#F5F3FF;border-radius:11px;padding:13px"><div style="font-weight:900;margin-bottom:4px;color:var(--purple-dark)" data-i18n="reason4_t">🧪 Built-in comprehension checks</div><div style="font-size:.84rem;color:var(--muted);font-weight:600;line-height:1.6" data-i18n="reason4_d">Every topic ends with a quiz. Students prove they understood.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════ I18N TRANSLATIONS ══════════
+const LANGS = {
+  en: { dir:'ltr', nav_home:'Home', nav_helper:'Homework Helper', nav_progress:'My Progress', nav_videos:'Videos', nav_dashboard:'Dashboard', nav_teacher:'Teacher', nav_school:'School Setup', hero_badge:'✨ District-Approved AI Tutor', hero_title:'Get <em>unstuck</em> on homework — <em>and actually learn</em>', hero_sub:'Step-by-step AI explanations in 6 languages, covering Math, Science, Coding, Engineering, and more.', hero_btn:'Try it now →', feat1_t:'AI Explanations', feat1_d:'Step-by-step answers tailored to your grade level, in your language.', feat2_t:'Coding Help', feat2_d:'Python, JavaScript, HTML/CSS, Java, and Scratch — with real code examples.', feat3_t:'Engineering', feat3_d:'Civil, Mechanical, Electrical, Computer, and Basic Engineering explained clearly.', feat4_t:'6 Languages', feat4_d:'Full UI + AI answers in English, Spanish, French, Chinese, Arabic, and Portuguese.', feat5_t:'Learning Mode', feat5_d:'Students must attempt first. Teachers control the answer settings.', feat6_t:'Progress Reports', feat6_d:'Printable reports for teachers, plus a full parent/teacher dashboard.', subj_math:'Math', subj_grammar:'Grammar', subj_science:'Science', subj_history:'History', subj_code:'Coding', subj_eng:'Engineering', subj_lang:'Languages', helper_title:'Homework Helper', helper_sub:'Ask any question — explained step by step in your language and grade level.', lm_banner:'🔒 Learning Mode ON — attempt the problem before seeing the explanation.', your_question:'Your Question', explain_btn:'Explain it to me', explanation:'Step-by-Step Explanation', empty_msg:"Enter your question and I'll walk you through it!", thinking:'Thinking...', attempt_title:'🔒 Try it yourself first!', attempt_desc:'Before I explain, give it a shot. What do you think the answer might be?', attempt_submit:'Submit my attempt →', attempt_skip:"I don't know, show me", ans_locked:'Answer hidden — take the quiz to reveal it.', unlock:'Unlock Answer', vid_title:'🎥 Related Videos on YouTube', rephrase_btn:'🔁 Explain differently', quiz_btn:'🧪 Quiz me', quick_quiz:'Quick Quiz', making_quiz:'Making quiz...', skills_title:'Your Skill Levels', skills_sub:'Based on your recent questions and quiz scores.', print_report:'Print Progress Report', plan_title:'Your Improvement Plan', plan_sub:'Check tasks off as you complete them.', ai_analysis:'AI Analysis', videos_title:'Video Lessons', videos_sub:'Curated YouTube videos for every subject.', all:'All', dash_title:'Your Dashboard 👋', dash_sub:'A snapshot of your learning this session.', recent:'Recent Questions', teacher_title:'Teacher & Parent Dashboard', teacher_sub:'Monitor student activity and control learning settings.', pin_title:'Enter Teacher PIN', pin_desc:'This area is for teachers and parents only.', pin_hint:'Default PIN: 1234 (change in School Setup)', pin_wrong:'❌ Wrong PIN. Try again.', ans_settings:'Answer Settings', mode_attempt:'🔒 Require attempt first', mode_always:'✅ Always show answer', mode_hide:'🚫 Hide until quiz', activity_log:'Student Activity Log', school_title:'School Setup', school_sub:'Customize StudyBuddy for your school.', branding:'School Branding', school_name_lbl:'School Name', pin_change:'Teacher PIN (4 digits)', school_color:'School Color', apply_branding:'✅ Apply School Branding', why_approve:'📋 Why Districts Should Approve StudyBuddy', reason1_t:'✅ Teaches process, not just answers', reason1_d:'Every response shows HOW to solve. Students learn the method.', reason2_t:'🔒 Learning Mode enforces effort', reason2_d:'Students must attempt problems themselves before receiving help.', reason3_t:'👁️ Full teacher visibility', reason3_d:'Teachers see every question with timestamps. Nothing hidden.', reason4_t:'🧪 Built-in comprehension checks', reason4_d:'Every topic ends with a quiz. Students prove they understood.', lm_label:'🧠 Learning Mode', grade_elem:'Elementary (K–5)', grade_mid:'Middle School (6–8)', grade_high:'High School (9–12)', grade_col:'College', examples:'Try an Example' },
+  es: { dir:'ltr', nav_home:'Inicio', nav_helper:'Ayuda con Tareas', nav_progress:'Mi Progreso', nav_videos:'Videos', nav_dashboard:'Panel', nav_teacher:'Maestro', nav_school:'Config. Escolar', hero_badge:'✨ Tutor IA Aprobado por Distritos', hero_title:'<em>Desatáscate</em> con las tareas — <em>y realmente aprende</em>', hero_sub:'Explicaciones IA paso a paso en 6 idiomas: Matemáticas, Ciencias, Programación, Ingeniería y más.', hero_btn:'Pruébalo ahora →', feat1_t:'Explicaciones IA', feat1_d:'Respuestas paso a paso adaptadas a tu nivel escolar, en tu idioma.', feat2_t:'Ayuda con Código', feat2_d:'Python, JavaScript, HTML/CSS, Java y Scratch — con ejemplos de código real.', feat3_t:'Ingeniería', feat3_d:'Civil, Mecánica, Eléctrica, Computación y conceptos básicos explicados claramente.', feat4_t:'6 Idiomas', feat4_d:'Interfaz completa + respuestas IA en inglés, español, francés, chino, árabe y portugués.', feat5_t:'Modo de Aprendizaje', feat5_d:'Los estudiantes deben intentar primero. Los maestros controlan las respuestas.', feat6_t:'Reportes de Progreso', feat6_d:'Reportes imprimibles para maestros y panel para padres y maestros.', subj_math:'Matemáticas', subj_grammar:'Gramática', subj_science:'Ciencias', subj_history:'Historia', subj_code:'Programación', subj_eng:'Ingeniería', subj_lang:'Idiomas', helper_title:'Ayuda con Tareas', helper_sub:'Haz cualquier pregunta — explicada paso a paso en tu idioma y nivel.', lm_banner:'🔒 Modo Aprendizaje ACTIVO — intenta el problema antes de ver la explicación.', your_question:'Tu Pregunta', explain_btn:'Explícamelo', explanation:'Explicación Paso a Paso', empty_msg:'¡Escribe tu pregunta y te guiaré paso a paso!', thinking:'Pensando...', attempt_title:'🔒 ¡Inténtalo primero!', attempt_desc:'Antes de explicarte, ¿cuál crees que es la respuesta?', attempt_submit:'Enviar mi intento →', attempt_skip:'No sé, muéstrame', ans_locked:'Respuesta oculta — haz el quiz para revelarla.', unlock:'Desbloquear Respuesta', vid_title:'🎥 Videos Relacionados en YouTube', rephrase_btn:'🔁 Explicar diferente', quiz_btn:'🧪 Ponme a prueba', quick_quiz:'Quiz Rápido', making_quiz:'Creando quiz...', skills_title:'Tus Niveles de Habilidad', skills_sub:'Basado en tus preguntas recientes.', print_report:'Imprimir Reporte', plan_title:'Tu Plan de Mejora', plan_sub:'Marca las tareas completadas — se guardan automáticamente.', ai_analysis:'Análisis IA', videos_title:'Lecciones en Video', videos_sub:'Videos de YouTube para cada materia.', all:'Todos', dash_title:'Tu Panel 👋', dash_sub:'Un resumen de tu aprendizaje en esta sesión.', recent:'Preguntas Recientes', teacher_title:'Panel de Maestro y Padres', teacher_sub:'Monitorea la actividad del estudiante.', pin_title:'Ingresar PIN del Maestro', pin_desc:'Esta área es solo para maestros y padres.', pin_hint:'PIN predeterminado: 1234', pin_wrong:'❌ PIN incorrecto. Intenta de nuevo.', ans_settings:'Configuración de Respuestas', mode_attempt:'🔒 Requerir intento primero', mode_always:'✅ Mostrar siempre', mode_hide:'🚫 Ocultar hasta el quiz', activity_log:'Registro de Actividad', school_title:'Configuración Escolar', school_sub:'Personaliza StudyBuddy para tu escuela.', branding:'Identidad Escolar', school_name_lbl:'Nombre de la Escuela', pin_change:'PIN del Maestro (4 dígitos)', school_color:'Color Escolar', apply_branding:'✅ Aplicar Identidad', why_approve:'📋 Por qué los Distritos Deben Aprobarlo', reason1_t:'✅ Enseña el proceso, no solo respuestas', reason1_d:'Cada respuesta muestra CÓMO resolver. Los estudiantes aprenden el método.', reason2_t:'🔒 Modo Aprendizaje exige esfuerzo', reason2_d:'Los estudiantes deben intentar primero antes de recibir ayuda.', reason3_t:'👁️ Visibilidad total del maestro', reason3_d:'Los maestros ven cada pregunta con hora. Nada oculto.', reason4_t:'🧪 Verificación de comprensión', reason4_d:'Cada tema termina con un quiz.', lm_label:'🧠 Modo Aprendizaje', grade_elem:'Primaria (K–5)', grade_mid:'Secundaria (6–8)', grade_high:'Preparatoria (9–12)', grade_col:'Universidad', examples:'Prueba un Ejemplo' },
+  fr: { dir:'ltr', nav_home:'Accueil', nav_helper:'Aide aux Devoirs', nav_progress:'Mon Progrès', nav_videos:'Vidéos', nav_dashboard:'Tableau de Bord', nav_teacher:'Enseignant', nav_school:'Config. École', hero_badge:'✨ Tuteur IA Approuvé', hero_title:'<em>Débloque</em> tes devoirs — <em>et apprends vraiment</em>', hero_sub:'Explications IA étape par étape en 6 langues — Maths, Sciences, Programmation, Ingénierie et plus.', hero_btn:'Essayer maintenant →', subj_math:'Maths', subj_grammar:'Grammaire', subj_science:'Sciences', subj_history:'Histoire', subj_code:'Programmation', subj_eng:'Ingénierie', subj_lang:'Langues', helper_title:'Aide aux Devoirs', helper_sub:'Pose n\'importe quelle question — expliquée étape par étape dans ta langue.', lm_banner:'🔒 Mode Apprentissage ACTIVÉ — tente le problème avant de voir l\'explication.', your_question:'Ta Question', explain_btn:'Explique-moi', explanation:'Explication Étape par Étape', empty_msg:'Entre ta question et je t\'accompagne !', thinking:'Réflexion...', attempt_title:'🔒 Essaie d\'abord !', attempt_desc:'Avant d\'expliquer, que penses-tu être la réponse ?', attempt_submit:'Soumettre ma tentative →', attempt_skip:'Je ne sais pas, montre-moi', ans_locked:'Réponse cachée — fais le quiz pour la révéler.', unlock:'Déverrouiller la Réponse', vid_title:'🎥 Vidéos sur YouTube', rephrase_btn:'🔁 Expliquer autrement', quiz_btn:'🧪 Quiz', quick_quiz:'Quiz Rapide', making_quiz:'Création du quiz...', skills_title:'Tes Niveaux de Compétences', skills_sub:'Basé sur tes questions récentes.', print_report:'Imprimer le Rapport', plan_title:'Ton Plan d\'Amélioration', plan_sub:'Coche les tâches complétées.', ai_analysis:'Analyse IA', videos_title:'Leçons Vidéo', videos_sub:'Vidéos YouTube pour chaque matière.', all:'Tous', dash_title:'Ton Tableau de Bord 👋', dash_sub:'Un aperçu de ton apprentissage.', recent:'Questions Récentes', teacher_title:'Tableau de Bord Enseignant', teacher_sub:'Surveille l\'activité et contrôle les paramètres.', pin_title:'Entrer le Code Enseignant', pin_desc:'Zone réservée aux enseignants et parents.', pin_hint:'Code par défaut : 1234', pin_wrong:'❌ Code incorrect. Réessaie.', ans_settings:'Paramètres des Réponses', mode_attempt:'🔒 Exiger une tentative', mode_always:'✅ Toujours afficher', mode_hide:'🚫 Cacher jusqu\'au quiz', activity_log:'Journal d\'Activité', school_title:'Configuration École', school_sub:'Personnalise StudyBuddy pour ton école.', branding:'Identité de l\'École', school_name_lbl:'Nom de l\'École', pin_change:'Code Enseignant (4 chiffres)', school_color:'Couleur de l\'École', apply_branding:'✅ Appliquer', why_approve:'📋 Pourquoi les Districts Devraient l\'Approuver', reason1_t:'✅ Enseigne le processus', reason1_d:'Chaque réponse montre COMMENT résoudre. Les élèves apprennent la méthode.', reason2_t:'🔒 Mode Apprentissage', reason2_d:'Les élèves doivent essayer d\'abord avant de recevoir de l\'aide.', reason3_t:'👁️ Visibilité totale', reason3_d:'Les enseignants voient chaque question avec l\'heure.', reason4_t:'🧪 Vérification de compréhension', reason4_d:'Chaque sujet se termine par un quiz.', lm_label:'🧠 Mode Apprentissage', grade_elem:'Primaire (K–5)', grade_mid:'Collège (6–8)', grade_high:'Lycée (9–12)', grade_col:'Université', examples:'Essaie un Exemple', feat1_t:'Explications IA', feat1_d:'Réponses étape par étape dans ta langue.', feat2_t:'Aide en Code', feat2_d:'Python, JavaScript, HTML/CSS, Java et Scratch.', feat3_t:'Ingénierie', feat3_d:'Génie Civil, Mécanique, Électrique et Informatique.', feat4_t:'6 Langues', feat4_d:'Interface complète + IA en 6 langues.', feat5_t:'Mode Apprentissage', feat5_d:'Les élèves doivent essayer en premier.', feat6_t:'Rapports de Progrès', feat6_d:'Rapports imprimables pour les enseignants.' },
+  zh: { dir:'ltr', nav_home:'首页', nav_helper:'作业助手', nav_progress:'我的进度', nav_videos:'视频', nav_dashboard:'仪表板', nav_teacher:'教师', nav_school:'学校设置', hero_badge:'✨ 经区认证的AI辅导老师', hero_title:'<em>攻克</em>作业难题 — <em>真正学到知识</em>', hero_sub:'6种语言的逐步AI解释 — 数学、科学、编程、工程等。', hero_btn:'立即体验 →', subj_math:'数学', subj_grammar:'语法', subj_science:'科学', subj_history:'历史', subj_code:'编程', subj_eng:'工程', subj_lang:'语言', helper_title:'作业助手', helper_sub:'提问任何问题 — 用您的语言和年级水平逐步解释。', lm_banner:'🔒 学习模式已开启 — 请先尝试解题，再查看解释。', your_question:'您的问题', explain_btn:'给我解释', explanation:'逐步解释', empty_msg:'输入您的问题，我来指导您！', thinking:'思考中...', attempt_title:'🔒 先自己尝试！', attempt_desc:'在解释之前，您认为答案是什么？', attempt_submit:'提交我的尝试 →', attempt_skip:'我不知道，请告诉我', ans_locked:'答案已隐藏 — 完成测验后解锁。', unlock:'解锁答案', vid_title:'🎥 YouTube相关视频', rephrase_btn:'🔁 换种方式解释', quiz_btn:'🧪 测验我', quick_quiz:'快速测验', making_quiz:'生成测验中...', skills_title:'您的技能水平', skills_sub:'根据您最近的问题。', print_report:'打印进度报告', plan_title:'您的改进计划', plan_sub:'完成后勾选任务。', ai_analysis:'AI分析', videos_title:'视频课程', videos_sub:'每门学科的精选YouTube视频。', all:'全部', dash_title:'您的仪表板 👋', dash_sub:'本次学习概览。', recent:'最近的问题', teacher_title:'教师和家长仪表板', teacher_sub:'监控学生活动。', pin_title:'输入教师PIN', pin_desc:'此区域仅供教师和家长使用。', pin_hint:'默认PIN：1234', pin_wrong:'❌ PIN错误，请重试。', ans_settings:'答案设置', mode_attempt:'🔒 要求先尝试', mode_always:'✅ 始终显示答案', mode_hide:'🚫 测验后才显示', activity_log:'学生活动记录', school_title:'学校设置', school_sub:'为您的学校自定义StudyBuddy。', branding:'学校品牌', school_name_lbl:'学校名称', pin_change:'教师PIN（4位数字）', school_color:'学校颜色', apply_branding:'✅ 应用学校品牌', why_approve:'📋 为何学区应批准StudyBuddy', reason1_t:'✅ 教授方法，不只是答案', reason1_d:'每个回答都展示如何解决。学生学习方法。', reason2_t:'🔒 学习模式强制努力', reason2_d:'学生必须先尝试才能获得帮助。', reason3_t:'👁️ 完整的教师可见性', reason3_d:'教师可以看到每个问题及时间戳。', reason4_t:'🧪 内置理解检查', reason4_d:'每个主题结束后有测验。', lm_label:'🧠 学习模式', grade_elem:'小学 (K–5)', grade_mid:'初中 (6–8)', grade_high:'高中 (9–12)', grade_col:'大学', examples:'尝试示例', feat1_t:'AI解释', feat1_d:'根据您的年级用您的语言逐步解答。', feat2_t:'编程帮助', feat2_d:'Python、JavaScript、HTML/CSS、Java和Scratch。', feat3_t:'工程', feat3_d:'土木、机械、电气和计算机工程。', feat4_t:'6种语言', feat4_d:'完整界面+6种语言的AI解答。', feat5_t:'学习模式', feat5_d:'学生必须先尝试。', feat6_t:'进度报告', feat6_d:'可打印的教师报告。' },
+  ar: { dir:'rtl', nav_home:'الرئيسية', nav_helper:'مساعد الواجبات', nav_progress:'تقدمي', nav_videos:'فيديوهات', nav_dashboard:'لوحة التحكم', nav_teacher:'المعلم', nav_school:'إعداد المدرسة', hero_badge:'✨ مدرس ذكاء اصطناعي معتمد', hero_title:'<em>تغلب</em> على الواجبات — <em>وتعلم فعلاً</em>', hero_sub:'شرح خطوة بخطوة بالذكاء الاصطناعي بـ 6 لغات — رياضيات، علوم، برمجة، هندسة والمزيد.', hero_btn:'جربه الآن ←', subj_math:'الرياضيات', subj_grammar:'القواعد', subj_science:'العلوم', subj_history:'التاريخ', subj_code:'البرمجة', subj_eng:'الهندسة', subj_lang:'اللغات', helper_title:'مساعد الواجبات', helper_sub:'اسأل أي سؤال — شرح خطوة بخطوة بلغتك ومستواك الدراسي.', lm_banner:'🔒 وضع التعلم مفعّل — حاول حل المسألة قبل رؤية الشرح.', your_question:'سؤالك', explain_btn:'اشرح لي', explanation:'الشرح خطوة بخطوة', empty_msg:'!أدخل سؤالك وسأرشدك خطوة بخطوة', thinking:'...أفكر', attempt_title:'!🔒 جرب بنفسك أولاً', attempt_desc:'قبل أن أشرح، ما رأيك بالإجابة؟', attempt_submit:'← إرسال محاولتي', attempt_skip:'لا أعرف، أرني', ans_locked:'.الإجابة مخفية — أكمل الاختبار لإظهارها', unlock:'إظهار الإجابة', vid_title:'🎥 فيديوهات ذات صلة على يوتيوب', rephrase_btn:'🔁 اشرح بطريقة مختلفة', quiz_btn:'🧪 اختبرني', quick_quiz:'اختبار سريع', making_quiz:'...إنشاء الاختبار', skills_title:'مستويات مهاراتك', skills_sub:'.بناءً على أسئلتك الأخيرة', print_report:'طباعة تقرير التقدم', plan_title:'خطة تحسينك', plan_sub:'.ضع علامة على المهام المكتملة', ai_analysis:'تحليل الذكاء الاصطناعي', videos_title:'دروس الفيديو', videos_sub:'.فيديوهات يوتيوب المنتقاة لكل مادة', all:'الكل', dash_title:'👋 لوحة التحكم', dash_sub:'.ملخص تعلمك في هذه الجلسة', recent:'الأسئلة الأخيرة', teacher_title:'لوحة تحكم المعلم والوالدين', teacher_sub:'.مراقبة نشاط الطالب', pin_title:'أدخل رمز المعلم', pin_desc:'.هذه المنطقة للمعلمين وأولياء الأمور فقط', pin_hint:'الرمز الافتراضي: 1234', pin_wrong:'.❌ رمز خاطئ. حاول مرة أخرى', ans_settings:'إعدادات الإجابة', mode_attempt:'🔒 اشترط المحاولة أولاً', mode_always:'✅ إظهار الإجابة دائماً', mode_hide:'🚫 إخفاء حتى الاختبار', activity_log:'سجل نشاط الطالب', school_title:'إعداد المدرسة', school_sub:'.خصص StudyBuddy لمدرستك', branding:'هوية المدرسة', school_name_lbl:'اسم المدرسة', pin_change:'رمز المعلم (4 أرقام)', school_color:'لون المدرسة', apply_branding:'✅ تطبيق هوية المدرسة', why_approve:'📋 لماذا يجب أن توافق المناطق على StudyBuddy', reason1_t:'✅ يعلم الطريقة لا مجرد الإجابات', reason1_d:'كل إجابة تُظهر كيفية الحل. الطلاب يتعلمون المنهج.', reason2_t:'🔒 وضع التعلم يفرض الجهد', reason2_d:'يجب على الطلاب المحاولة أولاً قبل تلقي المساعدة.', reason3_t:'👁️ رؤية كاملة للمعلم', reason3_d:'.يرى المعلمون كل سؤال مع الطابع الزمني', reason4_t:'🧪 فحوصات الفهم المدمجة', reason4_d:'.كل موضوع ينتهي باختبار', lm_label:'🧠 وضع التعلم', grade_elem:'الابتدائية', grade_mid:'الإعدادية', grade_high:'الثانوية', grade_col:'الجامعة', examples:'جرب مثالاً', feat1_t:'تفسيرات الذكاء الاصطناعي', feat1_d:'.إجابات خطوة بخطوة بلغتك ومستواك', feat2_t:'مساعدة في البرمجة', feat2_d:'.Python وJavaScript وHTML/CSS وJava وScratch', feat3_t:'الهندسة', feat3_d:'.هندسة مدنية وميكانيكية وكهربائية وحاسوبية', feat4_t:'6 لغات', feat4_d:'.واجهة كاملة وإجابات ذكاء اصطناعي بـ 6 لغات', feat5_t:'وضع التعلم', feat5_d:'.يجب على الطلاب المحاولة أولاً', feat6_t:'تقارير التقدم', feat6_d:'.تقارير قابلة للطباعة للمعلمين' },
+  pt: { dir:'ltr', nav_home:'Início', nav_helper:'Ajuda com Tarefas', nav_progress:'Meu Progresso', nav_videos:'Vídeos', nav_dashboard:'Painel', nav_teacher:'Professor', nav_school:'Config. Escola', hero_badge:'✨ Tutor IA Aprovado por Distritos', hero_title:'<em>Desbloqueie</em> as tarefas — <em>e realmente aprenda</em>', hero_sub:'Explicações IA passo a passo em 6 idiomas — Matemática, Ciências, Programação, Engenharia e mais.', hero_btn:'Experimente agora →', subj_math:'Matemática', subj_grammar:'Gramática', subj_science:'Ciências', subj_history:'História', subj_code:'Programação', subj_eng:'Engenharia', subj_lang:'Idiomas', helper_title:'Ajuda com Tarefas', helper_sub:'Faça qualquer pergunta — explicada passo a passo no seu idioma e nível.', lm_banner:'🔒 Modo Aprendizado ATIVO — tente o problema antes de ver a explicação.', your_question:'Sua Pergunta', explain_btn:'Explique para mim', explanation:'Explicação Passo a Passo', empty_msg:'Digite sua pergunta e eu te guiarei!', thinking:'Pensando...', attempt_title:'🔒 Tente primeiro!', attempt_desc:'Antes de explicar, qual você acha que é a resposta?', attempt_submit:'Enviar minha tentativa →', attempt_skip:'Não sei, me mostre', ans_locked:'Resposta oculta — faça o quiz para revelar.', unlock:'Desbloquear Resposta', vid_title:'🎥 Vídeos Relacionados no YouTube', rephrase_btn:'🔁 Explicar diferente', quiz_btn:'🧪 Me teste', quick_quiz:'Quiz Rápido', making_quiz:'Criando quiz...', skills_title:'Seus Níveis de Habilidade', skills_sub:'Baseado nas suas perguntas recentes.', print_report:'Imprimir Relatório', plan_title:'Seu Plano de Melhoria', plan_sub:'Marque as tarefas concluídas.', ai_analysis:'Análise IA', videos_title:'Aulas em Vídeo', videos_sub:'Vídeos do YouTube para cada matéria.', all:'Todos', dash_title:'Seu Painel 👋', dash_sub:'Um resumo do seu aprendizado nesta sessão.', recent:'Perguntas Recentes', teacher_title:'Painel de Professor e Pais', teacher_sub:'Monitore a atividade do aluno.', pin_title:'Inserir PIN do Professor', pin_desc:'Esta área é apenas para professores e pais.', pin_hint:'PIN padrão: 1234', pin_wrong:'❌ PIN errado. Tente novamente.', ans_settings:'Configurações de Resposta', mode_attempt:'🔒 Exigir tentativa primeiro', mode_always:'✅ Sempre mostrar resposta', mode_hide:'🚫 Ocultar até o quiz', activity_log:'Registro de Atividade', school_title:'Configuração da Escola', school_sub:'Personalize o StudyBuddy para sua escola.', branding:'Identidade da Escola', school_name_lbl:'Nome da Escola', pin_change:'PIN do Professor (4 dígitos)', school_color:'Cor da Escola', apply_branding:'✅ Aplicar Identidade', why_approve:'📋 Por que Distritos Devem Aprovar', reason1_t:'✅ Ensina o processo, não só respostas', reason1_d:'Cada resposta mostra COMO resolver. Alunos aprendem o método.', reason2_t:'🔒 Modo Aprendizado exige esforço', reason2_d:'Alunos devem tentar primeiro antes de receber ajuda.', reason3_t:'👁️ Visibilidade total do professor', reason3_d:'Professores veem cada pergunta com horário.', reason4_t:'🧪 Verificação de compreensão', reason4_d:'Cada tópico termina com um quiz.', lm_label:'🧠 Modo Aprendizado', grade_elem:'Fundamental (K–5)', grade_mid:'Fundamental II (6–8)', grade_high:'Médio (9–12)', grade_col:'Faculdade', examples:'Tente um Exemplo', feat1_t:'Explicações IA', feat1_d:'Respostas passo a passo no seu idioma.', feat2_t:'Ajuda com Código', feat2_d:'Python, JavaScript, HTML/CSS, Java e Scratch.', feat3_t:'Engenharia', feat3_d:'Engenharia Civil, Mecânica, Elétrica e de Computação.', feat4_t:'6 Idiomas', feat4_d:'Interface completa + IA em 6 idiomas.', feat5_t:'Modo Aprendizado', feat5_d:'Alunos devem tentar primeiro.', feat6_t:'Relatórios de Progresso', feat6_d:'Relatórios imprimíveis para professores.' }
+};
+
+// ══════════ STATE ══════════
+let lang = localStorage.getItem('sb_lang')||'en';
+let subject = 'Math', codeLang = 'Python', engField = 'Basic Engineering';
+let curQ = '', curAns = '', learningMode = false, ansMode = 'attempt';
+let quizData = null, quizIdx = 0;
+let history = JSON.parse(localStorage.getItem('sb_history')||'[]');
+let tasks   = JSON.parse(localStorage.getItem('sb_tasks')||'{}');
+let schoolColor = localStorage.getItem('sb_color')||'#3B82F6';
+let schoolColorDark = localStorage.getItem('sb_color_dark')||'#1D4ED8';
+let teacherPin = localStorage.getItem('sb_pin')||'1234';
+let pickedColor = schoolColor, pickedDark = schoolColorDark;
+
+// ══════════ I18N ══════════
+function t(key){ return LANGS[lang]?.[key] || LANGS.en[key] || key; }
+
+function applyLang(l){
+  lang = l;
+  localStorage.setItem('sb_lang', l);
+  const info = LANGS[l];
+  // RTL support
+  document.documentElement.dir = info?.dir || 'ltr';
+  document.documentElement.lang = l;
+  // Translate all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder = val;
+    else el.innerHTML = val;
+  });
+  // Update textarea placeholder
+  updatePlaceholder();
+}
+
+function changeLang(){
+  applyLang(document.getElementById('lang-sel').value);
+  toast(t('thinking').replace('...','') + ' ✓');
+}
+
+function updatePlaceholder(){
+  const placeholders = {
+    en: "Type your question here...\n\nExamples:\n• Solve: 3x + 7 = 22\n• Write a Python loop\n• What is Ohm's Law?\n• How do bridges work?\n• How do I say 'hello' in French?\n\nCtrl+Enter to submit",
+    es: "Escribe tu pregunta aquí...\n\nEjemplos:\n• Resuelve: 3x + 7 = 22\n• Escribe un bucle en Python\n• ¿Qué es la Ley de Ohm?\n• ¿Cómo funcionan los puentes?\n\nCtrl+Enter para enviar",
+    fr: "Écris ta question ici...\n\nExemples:\n• Résoudre: 3x + 7 = 22\n• Écrire une boucle Python\n• Qu'est-ce que la loi d'Ohm?\n\nCtrl+Entrée pour envoyer",
+    zh: "在这里输入你的问题...\n\n示例：\n• 解方程：3x + 7 = 22\n• 写一个Python循环\n• 什么是欧姆定律？\n\nCtrl+Enter提交",
+    ar: "اكتب سؤالك هنا...\n\nأمثلة:\n• حل: 3x + 7 = 22\n• اكتب حلقة Python\n• ما هو قانون أوم؟",
+    pt: "Digite sua pergunta aqui...\n\nExemplos:\n• Resolver: 3x + 7 = 22\n• Escrever um loop Python\n• O que é a Lei de Ohm?\n\nCtrl+Enter para enviar"
+  };
+  document.getElementById('q-inp').placeholder = placeholders[lang] || placeholders.en;
+}
+
+// ══════════ INIT ══════════
+function init(){
+  document.getElementById('lang-sel').value = lang;
+  applyLang(lang);
+  loadGrade();
+  applyColor(schoolColor, schoolColorDark, false);
+  const sn = localStorage.getItem('sb_school_name');
+  if(sn) applySchoolName(sn, false);
+  const lm = localStorage.getItem('sb_lm');
+  if(lm==='true'){ learningMode=true; document.getElementById('lm-tog').classList.add('on'); document.getElementById('lm-banner').style.display='flex'; }
+  const am = localStorage.getItem('sb_answer_mode');
+  if(am) ansMode = am;
+  renderVideos('All');
+  document.querySelectorAll('.cswatch').forEach(s => s.classList.toggle('active', s.dataset.c===schoolColor));
+  document.getElementById('school-inp').addEventListener('input', updatePreview);
+  document.getElementById('q-inp').addEventListener('keydown', e => { if(e.key==='Enter'&&e.ctrlKey) solveQ(); });
+  // Load saved Wolfram key into input if present
+  const wk = localStorage.getItem('sb_wolfram_key');
+  if(wk){ const wi = document.getElementById('wolfram-key-inp'); if(wi) wi.value = wk; }
+  // Load Gemini key and show status
+  const gk = localStorage.getItem('sb_openrouter_key');
+  if(gk){ 
+    const gi = document.getElementById('openrouter-key-inp'); 
+    if(gi) gi.value = gk;
+    const gs = document.getElementById('key-status');
+    if(gs){ gs.style.display='block'; gs.style.background='#D1FAE5'; gs.style.color='#059669'; gs.textContent='✅ OpenRouter key active — StudyBuddy is ready!'; }
+  }
+  // Show setup reminder if no key set
+  if(!gk){
+    setTimeout(()=>{
+      const btn = document.querySelectorAll('nav button');
+      toast('👋 First time? Click School Setup and paste your free OpenRouter key!');
+    }, 1200);
+  }
+}
+
+// ══════════ NAV ══════════
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='progress') renderProgress();
+  if(id==='dashboard') renderDashboard();
+  if(id==='teacher') renderTeacher();
+  if(id==='videos') renderVideos('All');
+}
+function goHelper(s){ selSubj(s, null); showPage('helper', document.querySelectorAll('nav button')[1]); }
+
+// ══════════ GRADE ══════════
+function loadGrade(){ const g=localStorage.getItem('sb_grade'); if(g) document.getElementById('grade-sel').value=g; }
+function saveGrade(){ localStorage.setItem('sb_grade', document.getElementById('grade-sel').value); toast('✓'); }
+function getGrade(){
+  const m={elementary:'an elementary school student (grades K-5)',middle:'a middle school student (grades 6-8)',high:'a high school student (grades 9-12)',college:'a college student'};
+  return m[document.getElementById('grade-sel').value]||m.middle;
+}
+
+// ══════════ LEARNING MODE ══════════
+function toggleLM(){
+  learningMode=!learningMode;
+  document.getElementById('lm-tog').classList.toggle('on',learningMode);
+  localStorage.setItem('sb_lm',learningMode);
+  document.getElementById('lm-banner').style.display=learningMode?'flex':'none';
+  toast(learningMode?'🔒 '+t('lm_label')+' ON':'🔓 '+t('lm_label')+' OFF');
+}
+
+// ══════════ SUBJECT ══════════
+function selSubj(s, el){
+  subject = s;
+  document.querySelectorAll('#subj-row .sb').forEach(b=>b.classList.remove('sel'));
+  if(el) el.classList.add('sel');
+  else document.querySelectorAll('#subj-row .sb').forEach(b=>{ if(b.textContent.trim().toLowerCase().includes(s.toLowerCase())) b.classList.add('sel'); });
+  // Show/hide sub-selectors
+  document.getElementById('code-sub').classList.toggle('show', s==='Coding');
+  document.getElementById('eng-sub').classList.toggle('show', s==='Engineering');
+}
+function selCodeLang(l, el){ codeLang=l; document.querySelectorAll('.csb').forEach(b=>b.classList.remove('sel')); el.classList.add('sel'); }
+function selEngField(f, el){ engField=f; document.querySelectorAll('.esb').forEach(b=>b.classList.remove('sel')); el.classList.add('sel'); }
+
+// ══════════ EXAMPLES ══════════
+function tryEx(q, s, sub){
+  selSubj(s, null);
+  if(s==='Coding' && sub) selCodeLang(sub, document.querySelector(`.csb:first-child`)||document.querySelector('.csb'));
+  if(s==='Engineering' && sub){
+    document.querySelectorAll('.esb').forEach(b=>{ if(b.textContent.includes(sub.split(' ')[0])) selEngField(sub, b); });
+  }
+  document.getElementById('q-inp').value = q;
+  solveQ();
+}
+
+// ══════════ AI ══════════
+// ══ OpenRouter API — FREE, works directly in browser, no server, no proxy needed ══
+// Free tier: 50 requests/day without account, 1000/day with free account
+// Sign up at openrouter.ai — no credit card ever required
+function getApiKey(){ return localStorage.getItem('sb_openrouter_key')||''; }
+
+async function callAI(sys, usr, maxTok=1000){
+  const key = getApiKey();
+  if(!key) throw new Error('No API key — go to the Setup tab and paste your free OpenRouter key.');
+
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`,
+      'HTTP-Referer': 'https://studybuddy.app',
+      'X-Title': 'StudyBuddy'
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-4-maverick:free',
+      max_tokens: maxTok,
+      temperature: 0.4,
+      messages: [
+        { role: 'system', content: sys },
+        { role: 'user',   content: usr }
+      ]
+    })
+  });
+
+  if(!r.ok){
+    const e = await r.json().catch(()=>({}));
+    if(r.status===401) throw new Error('Invalid API key. Double-check your key in the Setup tab.');
+    if(r.status===429) throw new Error('Free limit reached for today. Try again tomorrow or sign up for more.');
+    throw new Error(e.error?.message || `Error ${r.status}`);
+  }
+
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content || '';
+}
+
+// ══════════ SOLVE ══════════
+async function solveQ(){
+  let q = document.getElementById('q-inp').value.trim();
+  if(!q){ document.getElementById('q-inp').focus(); return; }
+
+  // ── Smart input cleanup ──
+  q = q.replace(/\bwat\b/gi,'What').replace(/\bwuts\b/gi,'What is').replace(/\bplz\b/gi,'Please').replace(/\bu\b/gi,'you').replace(/\br\b/gi,'are').replace(/\bidk\b/gi,'I do not know').replace(/\bbtw\b/gi,'by the way');
+  // Convert number-x-number → multiply (but NOT algebra like 3x+7)
+  q = q.replace(/(\d+)\s*[xX]\s*(\d+)/g, '$1 × $2');
+  // Convert * and / everywhere in math expressions
+  q = q.replace(/(\d|\))\s*\*\s*(\d|\()/g, '$1 × $2');
+  q = q.replace(/(\d+)\s*\/\s*(\d+)/g, '$1 ÷ $2');
+  // If the entire input is just a math expression (e.g. "1+1", "246 × 126", "5-3", "(5+3)×2")
+  // wrap it so the AI knows exactly what to do — and do this BEFORE adding a question mark
+  if(/^[\d\s\+\-×÷\*\/\(\)\.,%\^=\?]+$/.test(q.trim())){
+    q = 'Calculate and show your work: ' + q.trim().replace(/\?$/,'');
+  }
+  // Add question mark only if it looks like a question sentence — not a math expression or topic word
+  if(/^(what|how|why|when|where|who|is|are|can|do|does|explain|define|solve|find|write|create|qué|cómo|cuál|dónde|por|qu'est|comment|pourquoi)/i.test(q) && !q.startsWith('Calculate') && !q.endsWith('?') && !q.endsWith('.')){
+    q += '?';
+  }
+  document.getElementById('q-inp').value = q;
+  curQ = q;
+
+  // ── Show language detection hint ──
+  const detected = detectQuestionLang(q);
+  const uiLang = getLangName();
+  if(detected && detected !== uiLang){
+    toast(`🌐 Question detected in ${detected} — answering in ${detected}!`);
+  }
+
+  if(learningMode && ansMode!=='always'){
+    document.getElementById('empty-st').style.display='none';
+    document.getElementById('err-st').style.display='none';
+    document.getElementById('ans-area').classList.remove('show');
+    document.getElementById('attempt-wrap').style.display='block';
+    document.getElementById('attempt-inp').value='';
+    document.getElementById('attempt-inp').focus();
+    return;
+  }
+  await fetchExplanation();
+}
+
+function submitAttempt(){
+  const a=document.getElementById('attempt-inp').value.trim();
+  if(!a){ document.getElementById('attempt-inp').focus(); return; }
+  document.getElementById('attempt-wrap').style.display='none';
+  fetchExplanation(a);
+}
+function skipAttempt(){ document.getElementById('attempt-wrap').style.display='none'; fetchExplanation(''); }
+
+// ── helpers ──
+const LANG_NAMES = {en:'English',es:'Spanish',fr:'French',zh:'Mandarin Chinese',ar:'Arabic',pt:'Portuguese'};
+function getLangName(){ return LANG_NAMES[lang]||'English'; }
+function getSubjectCtx(){
+  if(subject==='Coding') return `${codeLang} Programming`;
+  if(subject==='Engineering') return engField;
+  return subject;
+}
+
+// ── subject-specific instructions ──
+function getSubjectInstructions(){
+  if(subject==='Coding') return `
+CODING RULES:
+- Always include at least one complete, working ${codeLang} code example.
+- Format ALL code inside triple backtick fences like this:
+\`\`\`${codeLang.toLowerCase()}
+# your code here
+\`\`\`
+- Explain what EVERY line of code does in plain language.
+- If the student makes a logic error, show the broken version first, then the fixed version.
+- For Scratch: describe blocks visually since there's no text syntax.`;
+
+  if(subject==='Engineering') return `
+ENGINEERING RULES:
+- Always state the relevant formula first (e.g. V = IR, F = ma).
+- Show every calculation step with units (e.g. 12V ÷ 4Ω = 3A).
+- Give a real-world example to make it concrete.
+- Define any technical terms the student might not know.`;
+
+  if(subject==='Language Learning') return `
+LANGUAGE LEARNING RULES:
+- Show the phrase/word in the target language, then English translation.
+- Include pronunciation guide in parentheses e.g. (pronounced: "bohn-ZHOOR").
+- Explain the grammar rule behind it.
+- Give 2–3 practical example sentences.
+- Point out common mistakes learners make.`;
+
+  if(subject==='Math') return `
+MATH RULES:
+- ANY math expression must be CALCULATED, not just described.
+  "1+1" → answer is 2. Show it. "100-37" → answer is 63. Show it. Always compute.
+- SCALE your response to the complexity — do NOT over-explain simple problems:
+  Simple (1+1, 5×3): 2–3 steps max.
+  Medium (246×126): 4–6 steps with long multiplication.
+  Complex (algebra, word problems): as many steps as needed.
+- For simple addition or subtraction (1+1, 100-37):
+  Step 1: Write the expression
+  Step 2: Compute it
+  Step 3: State the result
+  That is ALL that is needed. Do not add unnecessary steps.
+- "×" between two numbers always means multiply — NEVER treat as algebra.
+- For large multiplication, break into partial products:
+    246 × 6   = 1,476
+    246 × 20  = 4,920
+    246 × 100 = 24,600
+    Total = 30,996
+- Always carry units (inches, meters, kg) through every step.
+- After computing, do a quick estimation check to verify the answer makes sense.
+- If student types ONLY numbers and operators (e.g. "1+1"), treat it as "Calculate this."`;
+
+  if(subject==='Science') return `
+SCIENCE RULES:
+- Define key scientific terms simply.
+- Connect the concept to something the student can observe in real life.
+- If there's a process (like photosynthesis), describe each stage in order.`;
+
+  if(subject==='History') return `
+HISTORY RULES:
+- Give dates and key people where relevant.
+- Explain causes AND effects, not just events.
+- Keep a clear chronological or logical order.`;
+
+  return '';
+}
+
+// ── detect what language a question is written in ──
+function detectQuestionLang(q){
+  // Spanish indicators
+  if(/[áéíóúüñ¿¡]/i.test(q) || /\b(qué|cómo|cuál|cuándo|dónde|por qué|qué es|cuadrada|cuadrado|área|triángulo|círculo|resolver|explicar|suma|resta|multiplicar|dividir|raíz|ecuación|fracción|promedio|perimetro|perímetro)\b/i.test(q)) return 'Spanish';
+  // French indicators
+  if(/[àâäéèêëîïôùûüÿœæç]/i.test(q) || /\b(qu'est|comment|pourquoi|quelle|carré|aire|triangle|cercle|résoudre|expliquer|somme|racine|équation|fraction|moyenne)\b/i.test(q)) return 'French';
+  // Arabic indicators
+  if(/[\u0600-\u06FF]/.test(q)) return 'Arabic';
+  // Chinese indicators
+  if(/[\u4E00-\u9FFF]/.test(q)) return 'Mandarin Chinese';
+  // Portuguese indicators
+  if(/[ãõâêîôûáéíóú]/i.test(q) && /\b(área|quadrado|triângulo|círculo|resolver|explicar|soma|raiz|equação|fração|média|equação)\b/i.test(q)) return 'Portuguese';
+  return null;
+}
+
+// ── build the main system prompt ──
+function buildSystemPrompt(mode='explain', detectedLang=null){
+  const langName = getLangName();
+  const subjectCtx = getSubjectCtx();
+  const grade = getGrade();
+  const subjectInstructions = getSubjectInstructions();
+
+  // If we detected the question is in a different language than the UI,
+  // respond in whichever language the QUESTION was written in
+  const responseLang = detectedLang || langName;
+  const mixedNote = detectedLang && detectedLang !== langName
+    ? `NOTE: The student wrote their question in ${detectedLang} even though the interface is set to ${langName}. Respond in ${detectedLang} since that is clearly the language they are most comfortable with.`
+    : '';
+
+  if(mode==='rephrase') return `You are StudyBuddy, a patient AI tutor. The student is ${grade} and did NOT understand the first explanation.
+Respond entirely in ${responseLang}.
+${mixedNote}
+Try a COMPLETELY different approach: use a real-life analogy, simpler vocabulary, a diagram described in words, or a relatable story.
+${subjectInstructions}
+Use the EXACT same step format:
+Step 1: [title]
+[explanation]
+...
+✅ Answer: [final answer]`;
+
+  return `You are StudyBuddy, an expert and patient AI tutor for ${subjectCtx}. The student is ${grade}.
+
+══ CRITICAL LANGUAGE RULE ══
+${mixedNote}
+Respond ENTIRELY in ${responseLang}. Every single word — steps, titles, explanations, and the final answer — must be in ${responseLang}. Do NOT switch languages mid-response.
+
+══ CRITICAL FORMAT RULES ══
+ALWAYS use this EXACT format — no exceptions, no matter how simple or complex the question:
+
+Step 1: [short descriptive title in ${responseLang}]
+[clear explanation, 1–4 sentences]
+
+Step 2: [short descriptive title in ${responseLang}]
+[clear explanation]
+
+[Add as many steps as needed — minimum 2, maximum 8]
+
+✅ Answer: [the final answer or key takeaway in ${responseLang}, 1–2 sentences max]
+
+NEVER skip the "✅ Answer:" line — it MUST always be the very last line.
+NEVER use bullet points, numbered lists, bold (**text**), or markdown headers (#). ONLY use the Step format above.
+
+══ HANDLING UNCLEAR OR MIXED-LANGUAGE QUESTIONS ══
+- If the question uses words from multiple languages (e.g. "area cuadrada", "solve el problema"), understand it as best you can — this is a student who knows the concept in one language but is asking in another. Translate your understanding in Step 1 and proceed.
+- If the question has a typo or grammar error, make your BEST guess at what the student means. State your interpretation in Step 1, then answer it.
+- If the question contains a factual or mathematical mistake, gently note the correction in Step 1, then answer correctly.
+- If the question is very short or vague (e.g. "area cuadrada?", "photosynthesis?", "loops?"), treat it as "Please explain [topic] to me" and give a full explanation.
+- NEVER say "I don't understand the question." Always attempt an answer.
+- Use language and examples appropriate for ${grade}.
+
+══ SUBJECT RULES ══
+${subjectInstructions}
+
+══ EXAMPLES ══
+Example 1 — Simple arithmetic (Math):
+Student question: "Calculate and show your work: 1+1"
+
+Step 1: Identify the operation
+We are adding two numbers: 1 + 1.
+Step 2: Calculate
+1 + 1 = 2
+✅ Answer: 1 + 1 = 2
+
+Example 2 — Large multiplication (Math):
+Student question: "Calculate and show your work: 246 × 126"
+
+Step 1: Set up the long multiplication
+We multiply 246 by each digit of 126 separately, then add the results.
+Step 2: Multiply 246 × 6 (ones digit)
+246 × 6 = 1,476
+Step 3: Multiply 246 × 20 (tens digit)
+246 × 2 = 492, shift one place left: 4,920
+Step 4: Multiply 246 × 100 (hundreds digit)
+246 × 1 = 246, shift two places left: 24,600
+Step 5: Add the partial products
+1,476 + 4,920 + 24,600 = 30,996
+Step 6: Verify with estimation
+246 × 126 ≈ 250 × 125 = 31,250 — close to 30,996 ✓
+✅ Answer: 246 × 126 = 30,996
+
+Example 2 — Mixed-language question (Spanish):
+Student question: "area cuadrada?"
+
+Step 1: Entendiendo la pregunta
+The student is asking about "square area" (área cuadrada) — the amount of space inside a square. Great question!
+Step 2: La fórmula del área de un cuadrado
+Area = lado × lado, or A = s²  (where s = the length of one side)
+Step 3: Un ejemplo práctico
+If a square has sides of 5 cm: Area = 5 × 5 = 25 cm²
+✅ Answer: The area of a square = side × side (A = s²). A square with 5 cm sides has an area of 25 cm².`;
+}
+
+async function fetchExplanation(attempt=''){
+  setBusy(true);
+  const detectedLang = detectQuestionLang(curQ);
+  const sys = buildSystemPrompt('explain', detectedLang);
+  const usr = attempt
+    ? `The student's question: "${curQ}"\n\nThe student attempted this answer first: "${attempt}"\n\nBriefly acknowledge their attempt in Step 1 (tell them if they were right, close, or what they missed), then give the full step-by-step explanation.`
+    : `Question: ${curQ}`;
+
+  try {
+    // Run Claude and Wolfram in parallel — Wolfram never blocks Claude
+    const wolframPromise = (subject === 'Math' || subject === 'Engineering') && isMathQuestion(curQ)
+      ? callWolfram(curQ)
+      : Promise.resolve(null);
+
+    const ans = await callAI(sys, usr, 1200);
+    curAns = ans;
+    setBusy(false);
+    document.getElementById('ans-content').innerHTML = fmtAnswer(ans);
+    document.getElementById('ans-area').classList.add('show');
+    showVidLinks(curQ, subject);
+    if(ansMode==='hide'){ document.querySelectorAll('.ans-final').forEach(e=>e.style.display='none'); document.getElementById('ans-locked').style.display='block'; }
+    else document.getElementById('ans-locked').style.display='none';
+    history.unshift({subject, question:curQ, timestamp:Date.now(), quizTaken:false, attempt:attempt||null, lang});
+    localStorage.setItem('sb_history', JSON.stringify(history.slice(0,40)));
+    document.getElementById('quiz-wrap').classList.remove('show');
+    document.getElementById('qbody').innerHTML='';
+    quizData=null;
+
+    // Inject Wolfram badge once it resolves (non-blocking)
+    wolframPromise.then(w => {
+      if(w && w.result) injectWolframBadge(w.result);
+    });
+
+  } catch(e){
+    setBusy(false);
+    document.getElementById('err-msg').textContent='⚠️ '+e.message;
+    document.getElementById('err-st').style.display='block';
+  }
+}
+
+// ══════════ WOLFRAM ALPHA INTEGRATION ══════════
+
+// Detect if a question is math/science that Wolfram can verify
+function isMathQuestion(q){
+  // Bare calculation expressions
+  if(/^Calculate and show your work:/i.test(q)) return true;
+  // Contains operators with numbers
+  if(/\d+\s*[\+\-×÷\*\/\^]\s*\d+/.test(q)) return true;
+  // Common math keywords
+  if(/\b(solve|calculate|compute|evaluate|simplify|factor|derivative|integral|equation|formula|average|mean|median|percent|percentage|square root|sqrt|hypotenuse|area|perimeter|volume|circumference|convert|how many|how much|how far|speed|distance|time|weight|temperature|fahrenheit|celsius|inches|meters|kilograms|pounds)\b/i.test(q)) return true;
+  return false;
+}
+
+// Extract just the math expression for Wolfram (strip "Calculate and show your work:" prefix etc.)
+function extractMathQuery(q){
+  return q
+    .replace(/^Calculate and show your work:\s*/i, '')
+    .replace(/^(what is|solve|calculate|compute|find|evaluate)\s+/i, '')
+    .replace(/\?$/, '')
+    .trim();
+}
+
+// Call Wolfram Alpha Short Answers API via a CORS proxy
+// Returns { result, source } or null if unavailable
+async function callWolfram(query){
+  const appId = localStorage.getItem('sb_wolfram_key') || 'DEMO';
+  const q = encodeURIComponent(extractMathQuery(query));
+
+  // Use allorigins as a CORS proxy (free, no setup needed for demo)
+  // In production, the user should enter their own App ID
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.wolframalpha.com/v1/result?appid=${appId}&i=${q}&units=metric`)}`;
+
+  try {
+    const resp = await Promise.race([
+      fetch(proxyUrl),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+    ]);
+    if(!resp.ok) return null;
+    const text = (await resp.text()).trim();
+    // Wolfram returns "Wolfram|Alpha did not understand your input" or error strings for failures
+    if(!text || text.includes('did not understand') || text.includes('No short answer') || text.length > 200) return null;
+    return { result: text, source: 'Wolfram Alpha' };
+  } catch(e){
+    return null; // Silently fail — never break the main experience
+  }
+}
+
+// Inject the Wolfram verified badge into the answer area
+function injectWolframBadge(wolframResult){
+  const existing = document.getElementById('wolfram-badge');
+  if(existing) existing.remove();
+
+  const badge = document.createElement('div');
+  badge.id = 'wolfram-badge';
+  badge.style.cssText = 'display:flex;align-items:center;gap:9px;background:#FFF7ED;border:2px solid #F97316;border-radius:12px;padding:11px 14px;margin-top:10px;animation:slideIn .3s ease both';
+  badge.innerHTML = `
+    <div style="font-size:1.4rem;flex-shrink:0">🔢</div>
+    <div>
+      <div style="font-size:.68rem;font-weight:900;color:#C2410C;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">✓ Verified by Wolfram Alpha</div>
+      <div style="font-size:.96rem;font-weight:800;color:#1E293B">${escHtml(wolframResult)}</div>
+    </div>
+    <a href="https://www.wolframalpha.com/input?i=${encodeURIComponent(extractMathQuery(curQ))}" target="_blank" rel="noopener" style="margin-left:auto;font-size:.74rem;font-weight:800;color:#F97316;text-decoration:none;flex-shrink:0">Open in W|A →</a>
+  `;
+
+  // Insert after the ans-content div
+  const ansContent = document.getElementById('ans-content');
+  ansContent.after(badge);
+}
+
+// Store wolfram key
+function saveOpenRouterKey(){
+  const key = document.getElementById('openrouter-key-inp').value.trim();
+  const status = document.getElementById('key-status');
+  if(!key){ 
+    status.style.display='block';
+    status.style.background='#FEE2E2';
+    status.style.color='#DC2626';
+    status.textContent='⚠️ Please paste your API key first.';
+    return; 
+  }
+  if(!key.startsWith('sk-or-')){
+    status.style.display='block';
+    status.style.background='#FEE2E2';
+    status.style.color='#DC2626';
+    status.textContent='⚠️ That doesn't look right. Gemini keys start with "sk-or-"';
+    return;
+  }
+  localStorage.setItem('sb_openrouter_key', key);
+  status.style.display='block';
+  status.style.background='#D1FAE5';
+  status.style.color='#059669';
+  status.textContent='✅ Key saved! StudyBuddy is ready — ask any question!';
+  toast('✅ OpenRouter key saved — StudyBuddy is live!');
+}
+
+function saveWolframKey(){
+  const key = document.getElementById('wolfram-key-inp').value.trim();
+  if(key){ localStorage.setItem('sb_wolfram_key', key); toast('✅ Wolfram key saved!'); }
+}
+  const btn=document.getElementById('solve-btn');
+  btn.disabled=on; btn.innerHTML=on?`⏳ ${t('thinking')}`:`🚀 <span data-i18n="explain_btn">${t('explain_btn')}</span>`;
+  document.getElementById('empty-st').style.display='none';
+  document.getElementById('err-st').style.display='none';
+  document.getElementById('ans-area').classList.remove('show');
+  document.getElementById('load-st').style.display=on?'block':'none';
+  if(on) document.getElementById('vid-wrap').style.display='none';
+}
+
+function unlockAns(){ document.querySelectorAll('.ans-final').forEach(e=>e.style.display='block'); document.getElementById('ans-locked').style.display='none'; }
+
+// ══════════ FORMAT ANSWER ══════════
+// Step header patterns for all 6 languages + generic numbered formats
+const STEP_RX = /^(Step\s*\d+|Étape\s*\d+|Paso\s*\d+|第\s*\d+\s*步|الخطوة\s*\d+|Passo\s*\d+|\d+[\.\)]\s+\w)/i;
+// Answer line patterns for all 6 languages
+const ANS_RX  = /^(✅\s*)?(Answer|Final Answer|Key Takeaway|Réponse|Réponse finale|Respuesta|Respuesta final|答案|最终答案|الإجابة|الإجابة النهائية|Resposta|Resposta final)\s*[:–—]/i;
+
+function fmtAnswer(rawText){
+  // ── 1. Extract and protect code blocks BEFORE splitting into lines ──
+  const codeBlocks = [];
+  let text = rawText.replace(/```([\w+-]*)[ \t]*\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const idx = codeBlocks.length;
+    codeBlocks.push({ lang: lang||'code', code: code.trim() });
+    return `\n@@CODE_${idx}@@\n`;
+  });
+
+  const lines = text.split('\n');
+  let html = '', stepTitle = '', stepBody = [];
+
+  function flushStep(){
+    if(!stepTitle) return;
+    // Render any inline code blocks inside the step body
+    const bodyHtml = stepBody
+      .map(l => {
+        const cm = l.match(/^@@CODE_(\d+)@@$/);
+        if(cm){
+          const cb = codeBlocks[+cm[1]];
+          return `<span class="code-lang-tag">${escHtml(cb.lang)}</span><div class="code-block">${escHtml(cb.code)}</div>`;
+        }
+        return l ? escHtml(l) : '<br>';
+      })
+      .filter(l => l !== '<br>' || stepBody.length > 1) // don't start with blank
+      .join('<br>');
+    html += `<div class="step-card"><div class="step-num">${escHtml(stepTitle)}</div><div class="step-text">${bodyHtml}</div></div>`;
+    stepTitle = ''; stepBody = [];
+  }
+
+  for(const rawLine of lines){
+    const tr = rawLine.trim();
+
+    // ── Standalone code block placeholder ──
+    if(/^@@CODE_\d+@@$/.test(tr)){
+      const idx = +tr.match(/\d+/)[0];
+      const cb = codeBlocks[idx];
+      if(stepTitle){
+        stepBody.push(tr); // belongs to current step
+      } else {
+        html += `<span class="code-lang-tag">${escHtml(cb.lang)}</span><div class="code-block">${escHtml(cb.code)}</div>`;
+      }
+      continue;
+    }
+
+    // ── Empty line ──
+    if(!tr){
+      if(stepTitle) stepBody.push('');
+      continue;
+    }
+
+    // ── ✅ Answer line ──
+    if(ANS_RX.test(tr) || /^✅\s+\S/.test(tr)){
+      flushStep();
+      const val = tr
+        .replace(/^✅\s*/,'')
+        .replace(ANS_RX,'')
+        .replace(/^[:–—\s]+/,'')
+        .trim();
+      html += `<div class="ans-final"><div class="ans-label">✅ Answer</div><div class="ans-value">${escHtml(val || tr)}</div></div>`;
+      continue;
+    }
+
+    // ── Step header ──
+    if(STEP_RX.test(tr)){
+      flushStep();
+      stepTitle = tr;
+      continue;
+    }
+
+    // ── Regular content ──
+    if(stepTitle){
+      stepBody.push(tr);
+    } else {
+      // Pre-step text (like a brief intro sentence) — render as paragraph
+      html += `<p style="margin-bottom:7px;line-height:1.75;font-size:.89rem;font-weight:600">${escHtml(tr)}</p>`;
+    }
+  }
+
+  flushStep(); // flush any remaining step
+
+  // ── Fallback: if nothing parsed correctly, render as clean readable text ──
+  if(!html){
+    html = `<div class="step-card"><div class="step-num">Response</div><div class="step-text" style="white-space:pre-wrap">${escHtml(rawText.trim())}</div></div>`;
+  }
+
+  // ── If we got steps but no ✅ Answer line, extract last sentence as answer ──
+  if(html && !html.includes('ans-final')){
+    const sentences = rawText.replace(/\n+/g,' ').split(/(?<=[.!?])\s+/);
+    const lastSentence = sentences.filter(s=>s.trim().length>10).pop()||'';
+    if(lastSentence) html += `<div class="ans-final"><div class="ans-label">✅ Answer</div><div class="ans-value">${escHtml(lastSentence.trim())}</div></div>`;
+  }
+
+  return html;
+}
+
+function escHtml(s){
+  if(typeof s !== 'string') return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ══════════ VIDEO LINKS ══════════
+const VDB = {
+  Math:[{t:'Khan Academy – Algebra',q:'khan academy algebra basics'},{t:'Math Antics',q:'math antics math explained'},{t:'Numberphile',q:'numberphile interesting math'}],
+  Grammar:[{t:'Grammar Girl',q:'grammar girl quick tips'},{t:'Khan Academy – Grammar',q:'khan academy english grammar'}],
+  Science:[{t:'Crash Course Science',q:'crash course science explained'},{t:'Kurzgesagt',q:'kurzgesagt science explained'}],
+  History:[{t:'Crash Course History',q:'crash course world history'},{t:'Simple History',q:'simple history animated'}],
+  Coding:[{t:'freeCodeCamp',q:'freecodecamp programming tutorial'},{t:'CS50 – Harvard',q:'cs50 harvard programming'},{t:'Traversy Media',q:'traversy media coding tutorial'}],
+  Engineering:[{t:'Engineer Guy',q:'engineerguy engineering explained'},{t:'Real Engineering',q:'real engineering explained'},{t:'Practical Engineering',q:'practical engineering channel'}],
+  'Language Learning':[{t:'SpanishPod101',q:'spanishpod101 learn spanish'},{t:'Learn French with Alexa',q:'learn french with alexa'},{t:'ChinesePod',q:'chinesepod learn mandarin'}],
+  Other:[{t:'Khan Academy',q:'khan academy learning'},{t:'Crash Course',q:'crash course all subjects'}]
+};
+function showVidLinks(q, s){
+  const vids=VDB[s]||VDB.Other;
+  let html=`<a class="vl" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q.slice(0,55)+' explained for students')}" target="_blank" rel="noopener"><div class="vi">▶</div><div><span class="vt">${t('vid_title').replace('🎥 ','').replace('Related Videos on YouTube','Search this topic on YouTube').replace('Videos Relacionados en YouTube','Buscar este tema').replace('Vidéos sur YouTube','Rechercher sur YouTube').replace('YouTube相关视频','在YouTube搜索').replace('فيديوهات ذات صلة على يوتيوب','البحث على يوتيوب').replace('Vídeos Relacionados no YouTube','Pesquisar no YouTube')}</span><span class="vm">"${q.slice(0,42)}..."</span></div><span style="color:var(--brand)">→</span></a>`;
+  vids.forEach(v=>{ html+=`<a class="vl" href="https://www.youtube.com/results?search_query=${encodeURIComponent(v.q)}" target="_blank" rel="noopener"><div class="vi">▶</div><div><span class="vt">${v.t}</span><span class="vm">YouTube</span></div><span style="color:var(--brand)">→</span></a>`; });
+  document.getElementById('vid-list').innerHTML=html;
+  document.getElementById('vid-wrap').style.display='block';
+}
+
+// ══════════ REPHRASE ══════════
+async function rephrase(){
+  if(!curQ) return;
+  const btn = document.getElementById('solve-btn');
+  btn.disabled = true;
+  const detectedLang = detectQuestionLang(curQ);
+  const sys = buildSystemPrompt('rephrase', detectedLang);
+  const usr = `The student did not understand this explanation: "${curQ}"\n\nPrevious answer summary: ${curAns.slice(0,300)}\n\nNow explain it a completely different way.`;
+  try {
+    const ans = await callAI(sys, usr, 1200);
+    curAns = ans;
+    document.getElementById('ans-content').innerHTML =
+      `<div style="background:var(--yellow);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:.8rem;font-weight:800;color:#92400E">🔁 ${t('rephrase_btn')} — different approach!</div>`
+      + fmtAnswer(ans);
+    if(ansMode==='hide'){ document.querySelectorAll('.ans-final').forEach(e=>e.style.display='none'); }
+  } catch(e){ toast('⚠️ '+e.message); }
+  btn.disabled = false;
+}
+
+// ══════════ QUIZ ══════════
+async function startQuiz(){
+  const qw=document.getElementById('quiz-wrap'); qw.classList.add('show');
+  const ql=document.getElementById('qload'); ql.style.display='flex';
+  document.getElementById('qbody').innerHTML='';
+  const langName = getLangName();
+  const sys = `You are a quiz generator. You MUST respond with ONLY a valid JSON object — no explanation, no markdown, no backticks, no extra text whatsoever.
+The JSON must follow this exact schema:
+{"questions":[{"q":"question text","options":["option A","option B","option C","option D"],"answer":0,"explanation":"why the correct answer is right"}]}
+Rules:
+- Exactly 3 questions
+- answer is the 0-based index of the correct option (0=A, 1=B, 2=C, 3=D)
+- All text in ${langName}
+- Questions should test understanding of the concept, not just memory of words
+- Make wrong options plausible (common mistakes) not obviously silly
+- Keep language appropriate for ${getGrade()}`;
+
+  const usr = `Create a 3-question quiz about this topic.
+Topic: ${curQ}
+Key content to test: ${curAns.replace(/```[\s\S]*?```/g,'[code example]').slice(0,700)}`;
+
+  try {
+    let raw = await callAI(sys, usr, 800);
+    // Aggressively clean the response — strip any wrapper text
+    raw = raw.trim();
+    // Find the first { and last } to extract just the JSON
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if(start === -1 || end === -1) throw new Error('No JSON found in response');
+    raw = raw.slice(start, end+1);
+    quizData = JSON.parse(raw);
+    // Validate structure
+    if(!quizData.questions || !Array.isArray(quizData.questions) || quizData.questions.length === 0){
+      throw new Error('Invalid quiz structure');
+    }
+    // Clamp answer index just in case
+    quizData.questions.forEach(q => {
+      q.answer = Math.max(0, Math.min(3, q.answer||0));
+      if(!q.options || q.options.length < 2) q.options = ['True','False','Maybe','Not sure'];
+    });
+    quizIdx=0; ql.style.display='none'; renderQuizQ();
+    if(history[0]){ history[0].quizTaken=true; localStorage.setItem('sb_history',JSON.stringify(history.slice(0,40))); }
+    if(ansMode==='hide'){ document.querySelectorAll('.ans-final').forEach(e=>e.style.display='block'); document.getElementById('ans-locked').style.display='none'; }
+  } catch(e){
+    ql.style.display='none';
+    document.getElementById('qbody').innerHTML=`<div class="err-box">⚠️ Couldn't generate quiz — try again. (${escHtml(e.message)})</div><button class="act-btn ab-purple" onclick="startQuiz()" style="margin-top:8px">🔄 Retry Quiz</button>`;
+  }
+}
+function renderQuizQ(){
+  const qb=document.getElementById('qbody');
+  if(!quizData||quizIdx>=quizData.questions.length){
+    qb.innerHTML=`<div style="text-align:center;padding:12px 0"><div style="font-size:1.7rem;margin-bottom:5px">🎉</div><div style="font-weight:800">${t('quick_quiz')} ✓</div></div>`; return;
+  }
+  const q=quizData.questions[quizIdx];
+  qb.innerHTML=`<div style="font-size:.68rem;font-weight:800;color:var(--muted);margin-bottom:5px">${quizIdx+1}/${quizData.questions.length}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-opts">${q.options.map((o,i)=>`<button class="qopt" onclick="ansQ(${i})">${o}</button>`).join('')}</div>
+    <div class="qfb" id="qfb"></div>
+    <button class="nxt-btn" id="nxt-btn" onclick="nextQ()">${quizIdx+1<quizData.questions.length?'Next →':'Finish ✓'}</button>`;
+}
+function ansQ(c){
+  const q=quizData.questions[quizIdx];
+  document.querySelectorAll('.qopt').forEach(o=>o.disabled=true);
+  document.querySelectorAll('.qopt')[q.answer].classList.add('correct');
+  if(c!==q.answer) document.querySelectorAll('.qopt')[c].classList.add('wrong');
+  const fb=document.getElementById('qfb');
+  fb.className='qfb show '+(c===q.answer?'correct':'wrong');
+  fb.textContent=c===q.answer?`✅ ${q.explanation}`:`❌ ${q.options[q.answer]} — ${q.explanation}`;
+  document.getElementById('nxt-btn').classList.add('show');
+}
+function nextQ(){ quizIdx++; renderQuizQ(); }
+
+// ══════════ PROGRESS ══════════
+const skills=[
+  {icon:'➕',name:'Algebra',pct:82,color:'#7C3AED'},
+  {icon:'✏️',name:'Grammar',pct:58,color:'#DB2777'},
+  {icon:'🔬',name:'Science',pct:74,color:'#059669'},
+  {icon:'🌍',name:'History',pct:65,color:'#EA580C'},
+  {icon:'💻',name:'Coding',pct:70,color:'#0891B2'},
+  {icon:'⚙️',name:'Engineering',pct:55,color:'#65A30D'},
+  {icon:'🗣️',name:'Languages',pct:60,color:'#4338CA'},
+  {icon:'📖',name:'Reading',pct:88,color:'#7C3AED'},
+];
+const plans=[
+  {week:'Week 1',color:'#DB2777',title:'Grammar + Writing',tasks:['Review comma rules','Practice 5 corrections','Watch Grammar Girl','Quiz: subjects & predicates']},
+  {week:'Week 2',color:'#0891B2',title:'Coding Basics',tasks:['Learn Python variables','Write a for loop','Watch freeCodeCamp Python','Build a simple calculator']},
+  {week:'Week 3',color:'#65A30D',title:'Engineering Fundamentals',tasks:["Study Newton's Laws","Practice force problems","Watch Real Engineering","Sketch a bridge design"]},
+  {week:'Week 4',color:'#4338CA',title:'Language Practice',tasks:['Learn 20 new Spanish words','Practice basic sentences','Watch SpanishPod101','Write a short paragraph']},
+];
+function renderProgress(){
+  document.getElementById('skill-grid').innerHTML=skills.map(s=>`
+    <div class="sk-card"><div class="sk-icon">${s.icon}</div><div class="sk-name">${s.name}</div>
+    <div class="pb"><div class="pf" style="width:${s.pct}%;background:${s.color}"></div></div>
+    <div class="sk-pct">${s.pct}% — ${s.pct>=80?'🌟 Strong':s.pct>=60?'📈 Growing':'⚠️ Needs work'}</div></div>`).join('');
+  document.getElementById('plan-grid').innerHTML=plans.map((p,pi)=>`
+    <div class="plan-card"><div class="pw" style="color:${p.color}">${p.week}</div><h3>${p.title}</h3>
+    <ul class="pt-list">${p.tasks.map((t,ti)=>{
+      const k=`${pi}_${ti}`, done=!!tasks[k];
+      return `<li><div class="tchk${done?' done':''}" onclick="togTask(this,'${k}')">${done?'✓':''}</div><span style="${done?'text-decoration:line-through;opacity:.5':''}">${t}</span></li>`;
+    }).join('')}</ul></div>`).join('');
+  document.getElementById('print-date').textContent='Generated: '+new Date().toLocaleDateString();
+  const sn=localStorage.getItem('sb_school_name');
+  if(sn) document.getElementById('print-title').textContent=`📚 ${sn} — StudyBuddy Progress Report`;
+  if(history.length>0) genAI();
+}
+function togTask(el,k){
+  el.classList.toggle('done'); const d=el.classList.contains('done');
+  el.textContent=d?'✓':''; el.nextElementSibling.style.textDecoration=d?'line-through':''; el.nextElementSibling.style.opacity=d?'.5':'';
+  if(d) tasks[k]=true; else delete tasks[k]; localStorage.setItem('sb_tasks',JSON.stringify(tasks));
+}
+async function genAI(){
+  const box=document.getElementById('ai-box'),ld=document.getElementById('ai-load'),ct=document.getElementById('ai-txt');
+  box.style.display='block'; ld.style.display='flex'; ct.style.display='none';
+  const langName={en:'English',es:'Spanish',fr:'French',zh:'Mandarin Chinese',ar:'Arabic',pt:'Portuguese'}[lang]||'English';
+  const recent=history.slice(0,10).map(h=>`- [${h.subject}] ${h.question}`).join('\n');
+  const sys=`You are a supportive academic advisor. Respond in ${langName}. Be warm, brief, motivating. Plain text only.`;
+  const usr=`Grade: ${getGrade()}\nRecent questions:\n${recent}\n\nGive: 1) Subjects they focus on. 2) One strength. 3) One area to improve. 4) One encouraging tip.`;
+  try { const r=await callAI(sys,usr,400); ld.style.display='none'; ct.textContent=r; ct.style.display='block'; }
+  catch{ box.style.display='none'; }
+}
+
+// ══════════ VIDEOS ══════════
+const allVids=[
+  {s:'Math',icon:'➕',bg:'#EDE9FE',sc:'#7C3AED',t:'Solving Linear Equations',q:'solving linear equations step by step',ch:'Khan Academy'},
+  {s:'Math',icon:'➕',bg:'#E0E7FF',sc:'#4338CA',t:'Finding Averages (Mean)',q:'how to find mean average math',ch:'Math Antics'},
+  {s:'Math',icon:'➕',bg:'#EDE9FE',sc:'#7C3AED',t:'Pythagorean Theorem',q:'pythagorean theorem explained',ch:'Math Antics'},
+  {s:'Math',icon:'➕',bg:'#E0E7FF',sc:'#4338CA',t:'Order of Operations',q:'order of operations PEMDAS',ch:'Khan Academy'},
+  {s:'Grammar',icon:'✏️',bg:'#FCE7F3',sc:'#DB2777',t:'Commas & Clauses',q:'commas clauses grammar explained',ch:'Grammar Girl'},
+  {s:'Grammar',icon:'✏️',bg:'#FEF3C7',sc:'#B45309',t:'Similes vs Metaphors',q:'simile metaphor examples students',ch:'Khan Academy'},
+  {s:'Grammar',icon:'✏️',bg:'#FCE7F3',sc:'#DB2777',t:'Active vs Passive Voice',q:'active passive voice grammar',ch:'Grammar Girl'},
+  {s:'Science',icon:'🔬',bg:'#D1FAE5',sc:'#059669',t:'Photosynthesis Explained',q:'photosynthesis explained students',ch:'Crash Course'},
+  {s:'Science',icon:'🔬',bg:'#CFFAFE',sc:'#0891B2',t:'Mitosis vs Meiosis',q:'mitosis meiosis difference',ch:'Crash Course'},
+  {s:'Science',icon:'🔬',bg:'#D1FAE5',sc:'#059669',t:"Newton's Laws of Motion",q:"newton's three laws motion",ch:'Kurzgesagt'},
+  {s:'History',icon:'🌍',bg:'#FFEDD5',sc:'#EA580C',t:'Causes of WWI',q:'causes world war 1 explained',ch:'Crash Course'},
+  {s:'History',icon:'🌍',bg:'#FEE2E2',sc:'#DC2626',t:'The French Revolution',q:'french revolution summary students',ch:'Simple History'},
+  {s:'History',icon:'🌍',bg:'#FFEDD5',sc:'#EA580C',t:'The American Civil War',q:'american civil war summary students',ch:'Crash Course'},
+  {s:'Coding',icon:'💻',bg:'#CFFAFE',sc:'#0891B2',t:'Python for Beginners',q:'python for beginners full course',ch:'freeCodeCamp'},
+  {s:'Coding',icon:'💻',bg:'#D1FAE5',sc:'#059669',t:'JavaScript Crash Course',q:'javascript crash course beginners',ch:'Traversy Media'},
+  {s:'Coding',icon:'💻',bg:'#CFFAFE',sc:'#0891B2',t:'HTML & CSS Full Course',q:'html css full course beginners',ch:'freeCodeCamp'},
+  {s:'Coding',icon:'💻',bg:'#D1FAE5',sc:'#059669',t:'Java for Beginners',q:'java programming for beginners',ch:'Programming with Mosh'},
+  {s:'Coding',icon:'💻',bg:'#CFFAFE',sc:'#0891B2',t:'Scratch Programming',q:'scratch programming tutorial beginners',ch:'Griffpatch'},
+  {s:'Engineering',icon:'⚙️',bg:'#ECFCCB',sc:'#65A30D',t:'What is Engineering?',q:'what is engineering explained simply',ch:'Engineer Guy'},
+  {s:'Engineering',icon:'⚙️',bg:'#FEF9C3',sc:'#CA8A04',t:'How Bridges Work',q:'how bridges work civil engineering',ch:'Practical Engineering'},
+  {s:'Engineering',icon:'⚙️',bg:'#ECFCCB',sc:'#65A30D',t:"Newton's Laws for Engineers",q:"newton's laws engineering applications",ch:'Real Engineering'},
+  {s:'Engineering',icon:'⚙️',bg:'#FEF9C3',sc:'#CA8A04',t:"Ohm's Law Explained",q:"ohm's law explained simply",ch:'Khan Academy'},
+  {s:'Engineering',icon:'⚙️',bg:'#ECFCCB',sc:'#65A30D',t:'Computer Engineering Basics',q:'computer engineering basics explained',ch:'CrashCourse'},
+  {s:'Language Learning',icon:'🗣️',bg:'#E0E7FF',sc:'#4338CA',t:'Spanish for Beginners',q:'spanish for beginners full course',ch:'SpanishPod101'},
+  {s:'Language Learning',icon:'🗣️',bg:'#EDE9FE',sc:'#7C3AED',t:'French Basics',q:'learn french for beginners',ch:'Learn French with Alexa'},
+  {s:'Language Learning',icon:'🗣️',bg:'#E0E7FF',sc:'#4338CA',t:'Mandarin Chinese Basics',q:'mandarin chinese for beginners',ch:'ChinesePod'},
+  {s:'Language Learning',icon:'🗣️',bg:'#EDE9FE',sc:'#7C3AED',t:'Arabic for Beginners',q:'arabic for beginners lesson',ch:'ArabicPod101'},
+  {s:'Language Learning',icon:'🗣️',bg:'#E0E7FF',sc:'#4338CA',t:'Portuguese Basics',q:'portuguese for beginners lesson',ch:'PortuguesePod101'},
+];
+function renderVideos(f){
+  const vids=f==='All'?allVids:allVids.filter(v=>v.s===f);
+  document.getElementById('vid-grid').innerHTML=vids.map(v=>`
+    <a class="vc" href="https://www.youtube.com/results?search_query=${encodeURIComponent(v.q)}" target="_blank" rel="noopener">
+      <div class="vthumb" style="background:${v.bg}"><span>${v.icon}</span><div class="play">▶</div></div>
+      <div class="vi2"><div class="vs" style="color:${v.sc}">${v.s}</div><div class="vtt">${v.t}</div><div class="vch">🎬 ${v.ch} · YouTube</div></div>
+    </a>`).join('');
+}
+function filterVids(f,btn){ document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderVideos(f); }
+
+// ══════════ DASHBOARD ══════════
+function renderDashboard(){
+  const counts={}; history.forEach(h=>counts[h.subject]=(counts[h.subject]||0)+1);
+  const top=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||'—';
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="stat-n" style="color:var(--brand)">${history.length}</div><div class="stat-l">Questions</div></div>
+    <div class="stat-card"><div class="stat-n" style="font-size:1.1rem;color:var(--orange-dark)">${top}</div><div class="stat-l">Top Subject</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--green-dark)">${Object.keys(tasks).length}</div><div class="stat-l">Tasks Done</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--purple-dark)">${history.filter(h=>h.quizTaken).length}</div><div class="stat-l">Quizzes</div></div>`;
+  const bgs={Math:'var(--purple)',Grammar:'var(--pink)',Science:'var(--green)',History:'var(--orange)',Coding:'var(--teal)',Engineering:'var(--lime)','Language Learning':'var(--indigo)',Other:'var(--brand-light)'};
+  const ics={Math:'➕',Grammar:'✏️',Science:'🔬',History:'🌍',Coding:'💻',Engineering:'⚙️','Language Learning':'🗣️',Other:'💬'};
+  const ul=document.getElementById('rec-list');
+  ul.innerHTML=!history.length
+    ?`<li style="padding:14px 0;text-align:center;color:var(--muted);font-weight:700">${t('empty_msg')}</li>`
+    :history.slice(0,8).map(h=>`<li class="rec-item">
+        <div class="rec-ico" style="background:${bgs[h.subject]||bgs.Other}">${ics[h.subject]||'💬'}</div>
+        <div class="rec-inf"><div class="rec-ttl">${h.question.length>62?h.question.slice(0,59)+'…':h.question}</div>
+        <div class="rec-sub">${h.subject} · ${ago(h.timestamp)}${h.quizTaken?' · ✅':''}</div></div>
+      </li>`).join('');
+}
+function ago(ts){ const s=Math.floor((Date.now()-ts)/1000); if(s<60) return 'Just now'; if(s<3600) return Math.floor(s/60)+'m ago'; return Math.floor(s/3600)+'h ago'; }
+
+// ══════════ TEACHER ══════════
+function checkPin(){
+  const v=document.getElementById('pin-inp').value;
+  if(v.length===4){
+    if(v===teacherPin){ document.getElementById('teacher-gate').style.display='none'; document.getElementById('t-content').classList.add('show'); renderTeacher(); }
+    else{ document.getElementById('pin-err').style.display='block'; document.getElementById('pin-inp').value=''; }
+  }
+}
+function renderTeacher(){
+  if(!document.getElementById('t-content').classList.contains('show')) return;
+  const counts={}; history.forEach(h=>counts[h.subject]=(counts[h.subject]||0)+1);
+  const top=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]||'—';
+  document.getElementById('t-stats').innerHTML=`
+    <div class="t-stat"><div class="t-sn" style="color:var(--brand)">${history.length}</div><div class="t-sl">Questions</div></div>
+    <div class="t-stat"><div class="t-sn" style="font-size:1rem;color:var(--orange-dark)">${top}</div><div class="t-sl">Top Subject</div></div>
+    <div class="t-stat"><div class="t-sn" style="color:var(--purple-dark)">${history.filter(h=>h.quizTaken).length}</div><div class="t-sl">Quizzes Taken</div></div>
+    <div class="t-stat"><div class="t-sn" style="color:var(--green-dark)">${learningMode?'ON':'OFF'}</div><div class="t-sl">Learning Mode</div></div>`;
+  const sc={Math:'#EDE9FE',Grammar:'#FCE7F3',Science:'#D1FAE5',History:'#FFEDD5',Coding:'#CFFAFE',Engineering:'#ECFCCB','Language Learning':'#E0E7FF',Other:'#F1F5F9'};
+  const stc={Math:'#7C3AED',Grammar:'#DB2777',Science:'#059669',History:'#EA580C',Coding:'#0891B2',Engineering:'#65A30D','Language Learning':'#4338CA',Other:'#64748B'};
+  document.getElementById('t-tbody').innerHTML=!history.length
+    ?`<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--muted);font-weight:700">No activity yet.</td></tr>`
+    :history.slice(0,30).map(h=>`<tr>
+        <td style="white-space:nowrap;color:var(--muted)">${new Date(h.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span class="stag" style="background:${sc[h.subject]||sc.Other};color:${stc[h.subject]||stc.Other}">${h.subject}</span></td>
+        <td>${h.question.length>65?h.question.slice(0,62)+'…':h.question}${h.attempt?`<br><span style="font-size:.73rem;color:var(--muted)">Attempt: "${h.attempt.slice(0,40)}"</span>`:''}</td>
+        <td style="text-align:center">${h.quizTaken?'✅':'—'}</td>
+      </tr>`).join('');
+  document.querySelectorAll('[id^="mode-"]').forEach(b=>b.style.opacity='.5');
+  const am=document.getElementById('mode-'+ansMode); if(am) am.style.opacity='1';
+  const descs={attempt:'Students must attempt the problem before seeing steps.',always:'Full answer always shown immediately.',hide:'Answer hidden until quiz is completed.'};
+  document.getElementById('mode-desc').textContent=descs[ansMode]||'';
+}
+function setAnsMode(m){ ansMode=m; localStorage.setItem('sb_answer_mode',m); renderTeacher(); toast('✓ Saved'); }
+
+// ══════════ SCHOOL BRANDING ══════════
+function pickColor(el){ document.querySelectorAll('.cswatch').forEach(s=>s.classList.remove('active')); el.classList.add('active'); pickedColor=el.dataset.c; pickedDark=el.dataset.d; updatePreview(); }
+function updatePreview(){ const n=document.getElementById('school-inp').value||'Your School'; document.getElementById('prev-txt').textContent=`StudyBuddy · ${n}`; document.getElementById('prev-bar').style.background=pickedColor+'18'; document.getElementById('prev-bar').style.color=pickedColor; }
+function applyColor(c,d,save=true){ document.documentElement.style.setProperty('--brand',c); document.documentElement.style.setProperty('--brand-dark',d); document.documentElement.style.setProperty('--brand-light',c+'18'); if(save){ localStorage.setItem('sb_color',c); localStorage.setItem('sb_color_dark',d); } }
+function applySchoolName(n,save=true){ document.getElementById('school-tag').textContent=n?`· ${n}`:''; document.title=n?`${n} – StudyBuddy`:'StudyBuddy'; if(save) localStorage.setItem('sb_school_name',n); }
+function applyBranding(){ const n=document.getElementById('school-inp').value.trim(); const np=document.getElementById('pin-chg').value.trim(); applyColor(pickedColor,pickedDark); if(n) applySchoolName(n); if(np.length===4){ teacherPin=np; localStorage.setItem('sb_pin',np); } toast('✅ '+t('apply_branding').replace('✅ ','')); }
+
+// ══════════ TOAST ══════════
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+
+// ══════════ START ══════════
+init();
+</script>
+</body>
+</html>
